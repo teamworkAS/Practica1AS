@@ -139,4 +139,3 @@ document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
 
-
