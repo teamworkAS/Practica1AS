@@ -90,21 +90,19 @@ app.controller("productosCtrl", function ($scope, $http) {
     }
 
     buscarProductos()
+    
+    // Enable pusher logging - don't include this in production
+    Pusher.logToConsole = true
 
-    document.addEventListener("DOMContentLoaded", function () {
-            console.log("Ya cargó el documento.")
-            // Enable pusher logging - don't include this in production
-            Pusher.logToConsole = true
-        
-            var pusher = new Pusher("fd4071018e972df38f9a", {
-              cluster: "us2"
-            })
-        
-            var channel = pusher.subscribe("canalProductos")
-            channel.bind("eventoProductos", function(data) {
-                alert(JSON.stringify(data))
-            })
-        })
+    var pusher = new Pusher("fd4071018e972df38f9a", {
+      cluster: "us2"
+    })
+
+    var channel = pusher.subscribe("canalProductos")
+    channel.bind("eventoProductos", function(data) {
+        alert(JSON.stringify(data))
+    })
+
     $(document).on("submit", "#frmProducto", function (event) {
         event.preventDefault()
 
@@ -156,6 +154,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
+
 
 
 
