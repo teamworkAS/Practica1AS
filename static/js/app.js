@@ -98,7 +98,7 @@ app.controller("productosCtrl", function ($scope, $http) {
       cluster: "us2"
     })
 
-    var channel = pusher.subscribe("canalProductos")
+    var channel = pusher.subscribe("hardy-drylands-461")
     channel.bind("eventoProductos", function(data) {
         alert(JSON.stringify(data))
     })
@@ -154,6 +154,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
 
 
 
