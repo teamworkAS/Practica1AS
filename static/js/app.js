@@ -144,7 +144,7 @@ app.controller("decoracionesCtrl", function ($scope, $http) {
             $("#tbodyDecoraciones").html(trsHTML)
         })
     }
-
+    //hola
     buscarDecoraciones()
     
     // Enable pusher logging - don't include this in production
