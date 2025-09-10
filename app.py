@@ -27,7 +27,7 @@ con = mysql.connector.connect(
 app = Flask(__name__)
 CORS(app)
 
-def pusherProductos():
+def pusherPadrinos():
     import pusher
     
     pusher_client = pusher.Pusher(
@@ -38,7 +38,7 @@ def pusherProductos():
       ssl=True
     )
     
-    pusher_client.trigger("hardy-drylands-461", "eventoProductos", {"message": "Hola Mundo!"})
+    pusher_client.trigger("hardy-drylands-461", "eventoPadrinos", {"message": "Hola Mundo!"})
     return make_response(jsonify({}))
 
 @app.route("/")
@@ -86,12 +86,12 @@ def iniciarSesion():
 
     return make_response(jsonify(registros))
 
-@app.route("/productos")
-def productos():
-    return render_template("productos.html")
+@app.route("/padrinos")
+def padrinos():
+    return render_template("padrinos.html")
 
-@app.route("/tbodyProductos")
-def tbodyProductos():
+@app.route("/tbodyPadrinos")
+def tbodyPadrinos():
     if not con.is_connected():
         con.reconnect()
 
@@ -123,7 +123,7 @@ def tbodyProductos():
         registro["Hora"]       = fecha_hora.strftime("%H:%M:%S")
     """
 
-    return render_template("tbodyProductos.html", productos=registros)
+    return render_template("tbodyPadrinos.html", padrinos=registros)
 
 @app.route("/productos/ingredientes/<int:id>")
 def productosIngredientes(id):
@@ -144,8 +144,8 @@ def productosIngredientes(id):
 
     return render_template("modal.html", productosIngredientes=registros)
 
-@app.route("/productos/buscar", methods=["GET"])
-def buscarProductos():
+@app.route("/padrinos/buscar", methods=["GET"])
+def buscarPadrinos():
     if not con.is_connected():
         con.reconnect()
 
@@ -196,10 +196,10 @@ def buscarProductos():
 
     return make_response(jsonify(registros))
 
-@app.route("/producto", methods=["POST"])
+@app.route("/padrino", methods=["POST"])
 # Usar cuando solo se quiera usar CORS en rutas específicas
 # @cross_origin()
-def guardarProducto():
+def guardarPadrinos():
     if not con.is_connected():
         con.reconnect()
 
@@ -235,12 +235,12 @@ def guardarProducto():
     con.commit()
     con.close()
 
-    pusherProductos()
+    pusherPadrinos()
     
     return make_response(jsonify({}))
 
-@app.route("/producto/<int:id>")
-def editarProducto(idPadrino):
+@app.route("/padrino/<int:id>")
+def editarPadrino(idPadrino):
     if not con.is_connected():
         con.reconnect()
 
@@ -260,8 +260,8 @@ def editarProducto(idPadrino):
 
     return make_response(jsonify(registros))
 
-@app.route("/producto/eliminar", methods=["POST"])
-def eliminarProducto():
+@app.route("/padrino/eliminar", methods=["POST"])
+def eliminarPadrino():
     if not con.is_connected():
         con.reconnect()
 

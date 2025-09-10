@@ -17,9 +17,9 @@ app.config(function ($routeProvider, $locationProvider) {
         templateUrl: "/app",
         controller: "appCtrl"
     })
-    .when("/productos", {
-        templateUrl: "/productos",
-        controller: "productosCtrl"
+    .when("/padrinos", {
+        templateUrl: "/padrinos",
+        controller: "padrinosCtrl"
     })
 
 
@@ -81,7 +81,7 @@ app.controller("appCtrl", function ($scope, $http) {
         $.post("iniciarSesion", $(this).serialize(), function (respuesta) {
             if (respuesta.length) {
                 alert("Iniciaste Sesión")
-                window.location = "/#/productos"
+                window.location = "/#/padrinos"
 
                 return
             }
@@ -90,14 +90,14 @@ app.controller("appCtrl", function ($scope, $http) {
         })
     })
 })
-app.controller("productosCtrl", function ($scope, $http) {
-    function buscarProductos() {
-        $.get("/tbodyProductos", function (trsHTML) {
-            $("#tbodyProductos").html(trsHTML)
+app.controller("padrinosCtrl", function ($scope, $http) {
+    function buscarPadrinos() {
+        $.get("/tbodypadrinos", function (trsHTML) {
+            $("#tbodypadrinos").html(trsHTML)
         })
     }
 
-    buscarProductos()
+    buscarPadrinos()
     
     // Enable pusher logging - don't include this in production
     Pusher.logToConsole = true
@@ -107,19 +107,20 @@ app.controller("productosCtrl", function ($scope, $http) {
     })
 
     var channel = pusher.subscribe("hardy-drylands-461")
-    channel.bind("eventoProductos", function(data) {
+    channel.bind("eventoPadrinos", function(data) {
         // alert(JSON.stringify(data))
-        buscarProductos()
+        buscarPadrinos()
     })
 
-    $(document).on("submit", "#frmProducto", function (event) {
+    $(document).on("submit", "#frmPadrino", function (event) {
         event.preventDefault()
 
-        $.post("/producto", {
+        $.post("/padrino", {
             id: "",
-            nombre: $("#txtNombre").val(),
-            precio: $("#txtPrecio").val(),
-            existencias: $("#txtExistencias").val(),
+            nombrePadrino: $("#txtNombrePadrino").val(),
+            sexo: $("#txtSexo").val(),
+            telefono: $("#txtTelefono").val(),
+            correoElectronico: $("txtEmail").val(),
         })
     })
 
