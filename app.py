@@ -218,8 +218,8 @@ def guardarPadrinos():
 
         SET nombrePadrino     = %s,
             sexo              = %s,
-            telefono          = %s
-            correoElectronico = %s,
+            telefono          = %s,
+            correoElectronico = %s
 
         WHERE idPadrino = %s
         """
