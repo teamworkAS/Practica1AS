@@ -265,7 +265,7 @@ def eliminarPadrino():
     if not con.is_connected():
         con.reconnect()
 
-    idPadrino = request.form["id"]
+    idPadrino = request.form["idPadrino"]
 
     cursor = con.cursor(dictionary=True)
     sql    = """
