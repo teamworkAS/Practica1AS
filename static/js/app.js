@@ -120,7 +120,7 @@ app.controller("padrinosCtrl", function ($scope, $http) {
             nombrePadrino:     $("#txtNombrePadrino").val(),
             sexo:              $("#txtSexo").val(),
             telefono:          $("#txtTelefono").val(),
-            correoElectronico: $("txtEmail").val(),
+            correoElectronico: $("#txtEmail").val(),
         })
     })
 

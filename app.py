@@ -125,8 +125,8 @@ def tbodyPadrinos():
 
     return render_template("tbodyPadrinos.html", padrinos=registros)
 
-@app.route("/productos/ingredientes/<int:id>")
-def productosIngredientes(id):
+@app.route("/productos/ingredientes/<int:idPadrino>")
+def productosIngredientes(idPadrino):
     if not con.is_connected():
         con.reconnect()
 
@@ -139,7 +139,7 @@ def productosIngredientes(id):
     ORDER BY productos.Nombre_Producto
     """
 
-    cursor.execute(sql, (id, ))
+    cursor.execute(sql, (idPadrino, ))
     registros = cursor.fetchall()
 
     return render_template("modal.html", productosIngredientes=registros)
