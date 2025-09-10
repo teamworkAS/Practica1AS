@@ -19,9 +19,9 @@ from flask_cors import CORS, cross_origin
 
 con = mysql.connector.connect(
     host="185.232.14.52",
-    database="u760464709_16005339_bd",
-    user="u760464709_16005339_usr",
-    password="/iJRzrJBz+P1"
+    database="u760464709_23005116_bd",
+    user="u760464709_23005116_usr",
+    password="z8[T&05u"
 )
 
 app = Flask(__name__)
@@ -31,14 +31,14 @@ def pusherProductos():
     import pusher
     
     pusher_client = pusher.Pusher(
-      app_id="2046005",
-      key="e57a8ad0a9dc2e83d9a2",
-      secret="8a116dd9600a3b04a3a0",
+      app_id="2046006",
+      key="fd4071018e972df38f9a",
+      secret="f54509be4e62f829f280",
       cluster="us2",
       ssl=True
     )
     
-    pusher_client.trigger("canalProductos", "eventoProductos", {"message": "Hola Mundo!"})
+    pusher_client.trigger("hardy-drylands-461", "eventoProductos", {"message": "Hola Mundo!"})
     return make_response(jsonify({}))
 
 @app.route("/")
