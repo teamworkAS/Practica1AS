@@ -124,6 +124,20 @@ app.controller("padrinosCtrl", function ($scope, $http) {
         })
     })
 
+    $(document).off("click", ".btn-eliminar").on("click", ".btn-eliminar", function () {
+        const id = $(this).data("idPadrino")
+
+        if (!confirm("¿Seguro que deseas eliminar este padrino?")) {
+            return
+        }
+
+        $.post("/padrino/eliminar", { idPadrino: id }, function () {
+            buscarPadrinos()
+        }).fail(function(xhr) {
+            alert("Error al eliminar: " + xhr.responseText)
+        })
+    })
+
     $(document).on("click", ".btn-ingredientes", function (event) {
         const id = $(this).data("id")
 
