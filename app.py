@@ -204,10 +204,10 @@ def guardarPadrinos():
         con.reconnect()
 
     idPadrino          = request.form["idPadrino"]
-    nombrePadrino      = request.form["txtNombrePadrino"]
-    sexo               = request.form["txtSexo"]
-    telefono           = request.form["txtTelefono"]
-    correoElectronico  = request.form["txtEmail"]
+    nombrePadrino      = request.form["nombrePadrino"]
+    sexo               = request.form["sexo"]
+    telefono           = request.form["telefono"]
+    correoElectronico  = request.form["correoElectronico"]
     # fechahora   = datetime.datetime.now(pytz.timezone("America/Matamoros"))
     
     cursor = con.cursor()
