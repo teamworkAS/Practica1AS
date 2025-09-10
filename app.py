@@ -204,10 +204,10 @@ def guardarPadrinos():
         con.reconnect()
 
     idPadrino          = request.form["idPadrino"]
-    nombrePadrino = request.form["nombrePadrino"]
-    sexo      = request.form["sexo"]
-    telefono      = request.form["telefono"]
-    correoElectronico = request.form["correoElectronico"]
+    nombrePadrino      = request.form["nombrePadrino"]
+    sexo               = request.form["sexo"]
+    telefono           = request.form["telefono"]
+    correoElectronico  = request.form["correoElectronico"]
     # fechahora   = datetime.datetime.now(pytz.timezone("America/Matamoros"))
     
     cursor = con.cursor()
@@ -223,7 +223,7 @@ def guardarPadrinos():
 
         WHERE idPadrino = %s
         """
-        val = (nombrePadrino, sexo, telefono, correoElectronico)
+        val = (nombrePadrino, sexo, telefono, correoElectronico, idPadrino)
     else:
         sql = """
         INSERT INTO padrinos (nombrePadrino, sexo, telefono, correoElectronico)
@@ -239,7 +239,7 @@ def guardarPadrinos():
     
     return make_response(jsonify({}))
 
-@app.route("/padrino/<int:id>")
+@app.route("/padrino/<int:idPadrino>")
 def editarPadrino(idPadrino):
     if not con.is_connected():
         con.reconnect()
