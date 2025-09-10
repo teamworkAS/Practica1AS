@@ -116,10 +116,10 @@ app.controller("padrinosCtrl", function ($scope, $http) {
         event.preventDefault()
 
         $.post("/padrino", {
-            id: "",
-            nombrePadrino: $("#txtNombrePadrino").val(),
-            sexo: $("#txtSexo").val(),
-            telefono: $("#txtTelefono").val(),
+            idPadrino: "",
+            nombrePadrino:     $("#txtNombrePadrino").val(),
+            sexo:              $("#txtSexo").val(),
+            telefono:          $("#txtTelefono").val(),
             correoElectronico: $("txtEmail").val(),
         })
     })
