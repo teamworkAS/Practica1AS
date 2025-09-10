@@ -125,7 +125,7 @@ app.controller("padrinosCtrl", function ($scope, $http) {
     })
 
     $(document).off("click", ".btn-eliminar").on("click", ".btn-eliminar", function () {
-        const id = $(this).data("idPadrino")
+        const id = $(this).data("idpadrino")
 
         if (!confirm("¿Seguro que deseas eliminar este padrino?")) {
             return
