@@ -97,14 +97,15 @@ def tbodyProductos():
 
     cursor = con.cursor(dictionary=True)
     sql    = """
-    SELECT Id_Producto,
-           Nombre_Producto,
-           Precio,
-           Existencias
+    SELECT idPadrino,
+           nombrePadrino,
+           sexo,
+           telefono,
+           correoElectronico
 
-    FROM productos
+    FROM padrinos
 
-    ORDER BY Id_Producto DESC
+    ORDER BY idPadrino DESC
 
     LIMIT 10 OFFSET 0
     """
@@ -154,19 +155,20 @@ def buscarProductos():
     
     cursor = con.cursor(dictionary=True)
     sql    = """
-    SELECT Id_Producto,
-           Nombre_Producto,
-           Precio,
-           Existencias
+    SELECT idPadrino,
+           nombrePadrino,
+           sexo,
+           telefono,
+           correoElectronico
 
-    FROM productos
+    FROM padrinos
 
-    WHERE Nombre_Producto LIKE %s
-    OR    Precio          LIKE %s
-    OR    Existencias     LIKE %s
+    WHERE nombrePadrino LIKE %s
+    OR    telefono          LIKE %s
+    OR    correoElectronico     LIKE %s
 
-    ORDER BY Id_Producto DESC
-
+    ORDER BY idPadrino DESC
+    
     LIMIT 10 OFFSET 0
     """
     val    = (busqueda, busqueda, busqueda)
@@ -201,31 +203,33 @@ def guardarProducto():
     if not con.is_connected():
         con.reconnect()
 
-    id          = request.form["id"]
-    nombre      = request.form["nombre"]
-    precio      = request.form["precio"]
-    existencias = request.form["existencias"]
+    idPadrino          = request.form["idPadrino"]
+    nombrePadrino = request.form["nombrePadrino"]
+    sexo      = request.form["sexo"]
+    telefono      = request.form["telefono"]
+    correoElectronico = request.form["correoElectronico"]
     # fechahora   = datetime.datetime.now(pytz.timezone("America/Matamoros"))
     
     cursor = con.cursor()
 
-    if id:
+    if idPadrino:
         sql = """
-        UPDATE productos
+        UPDATE padrinos
 
-        SET Nombre_Producto = %s,
-            Precio          = %s,
-            Existencias     = %s
+        SET nombrePadrino     = %s,
+            sexo              = %s,
+            telefono          = %s
+            correoElectronico = %s,
 
-        WHERE Id_Producto = %s
+        WHERE idPadrino = %s
         """
-        val = (nombre, precio, existencias, id)
+        val = (nombrePadrino, sexo, telefono, correoElectronico)
     else:
         sql = """
-        INSERT INTO productos (Nombre_Producto, Precio, Existencias)
-                    VALUES    (%s,          %s,      %s)
+        INSERT INTO padrinos (nombrePadrino, sexo, telefono, correoElectronico)
+                    VALUES    (%s,          %s,      %s,    %s)
         """
-        val =                 (nombre, precio, existencias)
+        val =                 (nombrePadrino, sexo, telefono, correoElectronico)
     
     cursor.execute(sql, val)
     con.commit()
@@ -236,19 +240,19 @@ def guardarProducto():
     return make_response(jsonify({}))
 
 @app.route("/producto/<int:id>")
-def editarProducto(id):
+def editarProducto(idPadrino):
     if not con.is_connected():
         con.reconnect()
 
     cursor = con.cursor(dictionary=True)
     sql    = """
-    SELECT Id_Producto, Nombre_Producto, Precio, Existencias
+    SELECT idPadrino, nombrePadrino, sexo, telefono, correoElectronico
 
-    FROM productos
+    FROM padrinos
 
-    WHERE Id_Producto = %s
+    WHERE idPadrino = %s
     """
-    val    = (id,)
+    val    = (idPadrino,)
 
     cursor.execute(sql, val)
     registros = cursor.fetchall()
@@ -261,14 +265,14 @@ def eliminarProducto():
     if not con.is_connected():
         con.reconnect()
 
-    id = request.form["id"]
+    idPadrino = request.form["id"]
 
     cursor = con.cursor(dictionary=True)
     sql    = """
-    DELETE FROM productos
-    WHERE Id_Producto = %s
+    DELETE FROM padrinos
+    WHERE idPadrino = %s
     """
-    val    = (id,)
+    val    = (idPadrino,)
 
     cursor.execute(sql, val)
     con.commit()
