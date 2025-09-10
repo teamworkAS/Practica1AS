@@ -92,8 +92,8 @@ app.controller("appCtrl", function ($scope, $http) {
 })
 app.controller("padrinosCtrl", function ($scope, $http) {
     function buscarPadrinos() {
-        $.get("/tbodypadrinos", function (trsHTML) {
-            $("#tbodypadrinos").html(trsHTML)
+        $.get("/tbodyPadrinos", function (trsHTML) {
+            $("#tbodyPadrinos").html(trsHTML)
         })
     }
 
