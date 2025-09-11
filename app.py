@@ -57,6 +57,20 @@ def pusherCargo():
     pusher_client.trigger("canalCargo", "eventoCargo", {"message": "Nuevo cargo"})
     return make_response(jsonify({}))
 
+def pusherApoyos():
+    import pusher
+
+    pusher_client = pusher.Pusher(
+      app_id='1891402',
+      key='505a9219e50795c4885e',
+      secret='fac4833b05652932a8bc',
+      cluster='us2',
+      ssl=True
+    )
+    
+    pusher_client.trigger("for-nature-533", "eventoApoyos", {"message": "Hola Mundo!"})
+    return make_response(jsonify({}))
+
 @app.route("/")
 def index():
     if not con.is_connected():
@@ -363,3 +377,178 @@ def eliminarCargo():
     con.close()
     return make_response(jsonify({"succes": True}))
 
+@app.route("/apoyos")
+def apoyos():
+    return render_template("apoyos.html")
+
+@app.route("/tbodyApoyo")
+def tbodyApoyo():
+    if not con.is_connected():
+        con.reconnect()
+
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    SELECT idApoyo,
+           idMascota,
+           idPadrino,
+           monto,
+           causa	
+
+    FROM apoyos
+
+    ORDER BY idApoyo DESC
+
+    LIMIT 10 OFFSET 0
+    """
+
+    cursor.execute(sql)
+    registros = cursor.fetchall()
+
+    # Si manejas fechas y horas
+    """
+    for registro in registros:
+        fecha_hora = registro["Fecha_Hora"]
+
+        registro["Fecha_Hora"] = fecha_hora.strftime("%Y-%m-%d %H:%M:%S")
+        registro["Fecha"]      = fecha_hora.strftime("%d/%m/%Y")
+        registro["Hora"]       = fecha_hora.strftime("%H:%M:%S")
+    """
+
+    return render_template("tbodyApoyo.html", apoyos=registros)
+
+@app.route("/apoyos/buscar", methods=["GET"])
+def buscarApoyos():
+    if not con.is_connected():
+        con.reconnect()
+
+    args     = request.args
+    busqueda = args["busqueda"]
+    busqueda = f"%{busqueda}%"
+    
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    SELECT idApoyo,
+           idMascota,
+           idPadrino,
+           monto,
+           causa	
+
+    FROM apoyos
+
+    WHERE idMascota LIKE %s
+    OR    idPadrino LIKE %s
+    OR    monto     LIKE %s
+    OR    causa     LIKE %s
+
+    ORDER BY idApoyo DESC
+
+    LIMIT 10 OFFSET 0
+    """
+    val    = (busqueda, busqueda, busqueda, busqueda)
+
+    try:
+        cursor.execute(sql, val)
+        registros = cursor.fetchall()
+
+        # Si manejas fechas y horas
+        """
+        for registro in registros:
+            fecha_hora = registro["Fecha_Hora"]
+
+            registro["Fecha_Hora"] = fecha_hora.strftime("%Y-%m-%d %H:%M:%S")
+            registro["Fecha"]      = fecha_hora.strftime("%d/%m/%Y")
+            registro["Hora"]       = fecha_hora.strftime("%H:%M:%S")
+        """
+
+    except mysql.connector.errors.ProgrammingError as error:
+        print(f"Ocurrió un error de programación en MySQL: {error}")
+        registros = []
+
+    finally:
+        con.close()
+
+    return make_response(jsonify(registros))
+
+@app.route("/apoyo", methods=["POST"])
+# Usar cuando solo se quiera usar CORS en rutas específicas
+# @cross_origin()
+def guardarApoyo():
+    if not con.is_connected():
+        con.reconnect()
+
+    idApoyo    = request.form["idApoyo"]
+    idMascota  = request.form["mascota"]
+    padrino    = request.form["padrino"]
+    monto      = request.form["monto"]
+    causa      = request.form["causa"]
+    # fechahora   = datetime.datetime.now(pytz.timezone("America/Matamoros"))
+    
+    cursor = con.cursor()
+
+    if idApoyo:
+        sql = """
+        UPDATE apoyos
+
+        SET idMascota = %s,
+        idPadrino = %s,
+        monto     = %s,
+        causa     = %s
+
+        WHERE idApoyo = %s
+        """
+        val = (idMascota, padrino, monto, causa, idApoyo)
+    else:
+        sql = """
+        INSERT INTO apoyos (idMascota, idPadrino, monto, causa)
+                    VALUES    (%s,          %s,      %s,    %s)
+        """
+        val =                 (idMascota, padrino, monto, causa)
+    
+    cursor.execute(sql, val)
+    con.commit()
+    con.close()
+
+    pusherApoyos()
+    
+    return make_response(jsonify({}))
+
+@app.route("/apoyo/<int:idApoyo>")
+def editarApoyos(idApoyo):
+    if not con.is_connected():
+        con.reconnect()
+
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    SELECT idApoyo, idMascota, idPadrino, monto, causa
+
+    FROM apoyos
+
+    WHERE idApoyo = %s
+    """
+    val    = (idApoyo,)
+
+    cursor.execute(sql, val)
+    registros = cursor.fetchall()
+    con.close()
+
+    return make_response(jsonify(registros))
+
+@app.route("/apoyo/eliminar", methods=["POST"])
+def eliminarApoyo():
+    if not con.is_connected():
+        con.reconnect()
+
+    idApoyo = request.form["idApoyo"]
+
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    DELETE FROM apoyos
+    WHERE idApoyo = %s
+    """
+    val    = (idApoyo,)
+
+    cursor.execute(sql, val)
+    con.commit()
+    con.close()
+
+    return make_response(jsonify({}))
