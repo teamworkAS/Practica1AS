@@ -25,6 +25,10 @@ app.config(function ($routeProvider, $locationProvider) {
         templateUrl: "/mascotas",
         controller: "mascotasCtrl"
     })
+    .when("/cargo", {
+        templateUrl: "/cargo",
+        controller: "cargoCtrl"
+    })
     .otherwise({
         redirectTo: "/"
     })
@@ -239,7 +243,52 @@ app.controller("decoracionesCtrl", function ($scope, $http) {
     })
 })
 
+app.controller("cargoCtrl", function ($scope, $http) {
+    function buscarCargo() {
+        $.get("/tbodyCargo", function (trsHTML) {
+            $("#tbodyCargo").html(trsHTML)
+        })
+    }
 
+    buscarCargo()
+    
+    Pusher.logToConsole = true
+
+    var pusher = new Pusher("57413b779fac9cbb46c7", {
+      cluster: "us2"
+    })
+
+    var channel = pusher.subscribe("canalCargo")
+    channel.bind("eventoCargo", function(data) {
+        buscarCargo()
+    })
+
+    $(document).on("submit", "#frmCargo", function (event) {
+        event.preventDefault()
+
+        $.post("/cargo", {
+            idCargo: "",
+            descripcion: $("#txtDescripcion").val(),
+            monto:       $("#txtMonto").val(),
+            fecha:       $("#txtFecha").val(),
+            idMascotas:  $("#txtIdMascota").val(),
+        })
+    })
+
+    $(document).off("click", ".btn-eliminar").on("click", ".btn-eliminar", function () {
+        const id = $(this).data("idcargo")
+
+        if (!confirm("¿Seguro que deseas eliminar este cargo?")) {
+            return
+        }
+
+        $.post("/cargo/eliminar", { idCargo: id }, function () {
+            buscarCargo()
+        }).fail(function(xhr) {
+            alert("Error al eliminar: " + xhr.responseText)
+        })
+    })
+})
 
 const DateTime = luxon.DateTime
 let lxFechaHora
@@ -258,4 +307,5 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
 
