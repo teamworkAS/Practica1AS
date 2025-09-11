@@ -114,6 +114,65 @@ app.controller("appCtrl", function ($scope, $http) {
         })
     })
 })
+
+app.controller("apoyosCtrl", function ($scope, $http) {
+    function buscarApoyos() {
+        $.get("/tbodyApoyo", function (trsHTML) {
+            $("#tbodyApoyo").html(trsHTML)
+        })
+    }
+    
+    // cargar datos iniciales
+    buscarApoyos()
+    cargarMascotas()
+    cargarPadrinos()
+    
+    // Enable pusher logging - don't include this in production
+    Pusher.logToConsole = true;
+    
+    var pusher = new Pusher('505a9219e50795c4885e', {
+        cluster: 'us2'
+    });
+    
+    var channel = pusher.subscribe('for-nature-533');
+    channel.bind('eventoApoyos', function(data) {
+        buscarApoyos()
+    })
+    
+    // guardar apoyo
+    $(document).on("submit", "#frmApoyo", function (event) {
+        event.preventDefault()
+    
+        $.post("/apoyo", {
+            idApoyo:   $("#idApoyo").val(),
+            mascota:   $("#mascota").val(),
+            padrino:   $("#padrino").val(),
+            monto:     $("#monto").val(),
+            causa:     $("#causa").val(),
+        }, function () {
+            buscarApoyos()
+            $("#frmApoyo")[0].reset()
+        }).fail(function(xhr) {
+            alert("Error al guardar: " + xhr.responseText)
+        })
+    })
+    
+    // eliminar apoyo
+    $(document).off("click", ".btn-eliminar").on("click", ".btn-eliminar", function () {
+        const idApoyo = $(this).data("id")
+    
+        if (!confirm("¿Seguro que deseas eliminar este apoyo?")) {
+            return
+        }
+    
+        $.post("/apoyo/eliminar", { idApoyo: idApoyo }, function () {
+            buscarApoyos()
+        }).fail(function(xhr) {
+            alert("Error al eliminar: " + xhr.responseText)
+        })
+    })
+})
+
 app.controller("padrinosCtrl", function ($scope, $http) {
     function buscarPadrinos() {
         $.get("/tbodyPadrinos", function (trsHTML) {
@@ -317,64 +376,6 @@ app.controller("cargoCtrl", function ($scope, $http) {
     })
 })
 
-app.controller("apoyosCtrl", function ($scope, $http) {
-function buscarApoyos() {
-    $.get("/tbodyApoyo", function (trsHTML) {
-        $("#tbodyApoyo").html(trsHTML)
-    })
-}
-
-// cargar datos iniciales
-buscarApoyos()
-cargarMascotas()
-cargarPadrinos()
-
-// Enable pusher logging - don't include this in production
-Pusher.logToConsole = true;
-
-var pusher = new Pusher('505a9219e50795c4885e', {
-    cluster: 'us2'
-});
-
-var channel = pusher.subscribe('for-nature-533');
-channel.bind('eventoApoyos', function(data) {
-    buscarApoyos()
-})
-
-// guardar apoyo
-$(document).on("submit", "#frmApoyo", function (event) {
-    event.preventDefault()
-
-    $.post("/apoyo", {
-        idApoyo:   $("#idApoyo").val(),
-        mascota:   $("#mascota").val(),
-        padrino:   $("#padrino").val(),
-        monto:     $("#monto").val(),
-        causa:     $("#causa").val(),
-    }, function () {
-        buscarApoyos()
-        $("#frmApoyo")[0].reset()
-    }).fail(function(xhr) {
-        alert("Error al guardar: " + xhr.responseText)
-    })
-})
-
-// eliminar apoyo
-$(document).off("click", ".btn-eliminar").on("click", ".btn-eliminar", function () {
-    const idApoyo = $(this).data("id")
-
-    if (!confirm("¿Seguro que deseas eliminar este apoyo?")) {
-        return
-    }
-
-    $.post("/apoyo/eliminar", { idApoyo: idApoyo }, function () {
-        buscarApoyos()
-    }).fail(function(xhr) {
-        alert("Error al eliminar: " + xhr.responseText)
-    })
-})
-})
-
 const DateTime = luxon.DateTime
 let lxFechaHora
 
@@ -392,3 +393,4 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
