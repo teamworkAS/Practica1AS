@@ -78,25 +78,25 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
 
 // --- funciones auxiliares para llenar selects ---
 function cargarMascotas() {
-$.get("/mascotas", function (data) {
-    const $select = $("#mascota")
-    $select.empty()
-    $select.append('<option value="">Selecciona una mascota</option>')
-    data.forEach(m => {
-        $select.append(`<option value="${m.idMascota}">${m.nombre}</option>`)
+    $.get("/mascotas", function (data) {
+        const $select = $("#mascota")
+        $select.empty()
+        $select.append('<option value="">Selecciona una mascota</option>')
+        data.forEach(m => {
+            $select.append(`<option value="${m.idMascota}">${m.nombre}</option>`)
+        })
     })
-})
 }
 
 function cargarPadrinos() {
-$.get("/padrinos", function (data) {
-    const $select = $("#padrino")
-    $select.empty()
-    $select.append('<option value="">Selecciona un padrino</option>')
-    data.forEach(p => {
-        $select.append(`<option value="${p.idPadrino}">${p.nombrePadrino}</option>`)
+    $.get("/padrinos", function (data) {
+        const $select = $("#padrino")
+        $select.empty()
+        $select.append('<option value="">Selecciona un padrino</option>')
+        data.forEach(p => {
+            $select.append(`<option value="${p.idPadrino}">${p.nombrePadrino}</option>`)
+        })
     })
-})
 }
 
 app.controller("appCtrl", function ($scope, $http) {
@@ -114,65 +114,6 @@ app.controller("appCtrl", function ($scope, $http) {
         })
     })
 })
-
-app.controller("apoyosCtrl", function ($scope, $http) {
-    function buscarApoyos() {
-        $.get("/tbodyApoyo", function (trsHTML) {
-            $("#tbodyApoyo").html(trsHTML)
-        })
-    }
-    
-    // cargar datos iniciales
-    buscarApoyos()
-    cargarMascotas()
-    cargarPadrinos()
-    
-    // Enable pusher logging - don't include this in production
-    Pusher.logToConsole = true;
-    
-    var pusher = new Pusher('505a9219e50795c4885e', {
-        cluster: 'us2'
-    });
-    
-    var channel = pusher.subscribe('for-nature-533');
-    channel.bind('eventoApoyos', function(data) {
-        buscarApoyos()
-    })
-    
-    // guardar apoyo
-    $(document).on("submit", "#frmApoyo", function (event) {
-        event.preventDefault()
-    
-        $.post("/apoyo", {
-            idApoyo:   $("#idApoyo").val(),
-            mascota:   $("#mascota").val(),
-            padrino:   $("#padrino").val(),
-            monto:     $("#monto").val(),
-            causa:     $("#causa").val(),
-        }, function () {
-            buscarApoyos()
-            $("#frmApoyo")[0].reset()
-        }).fail(function(xhr) {
-            alert("Error al guardar: " + xhr.responseText)
-        })
-    })
-    
-    // eliminar apoyo
-    $(document).off("click", ".btn-eliminar").on("click", ".btn-eliminar", function () {
-        const idApoyo = $(this).data("id")
-    
-        if (!confirm("¿Seguro que deseas eliminar este apoyo?")) {
-            return
-        }
-    
-        $.post("/apoyo/eliminar", { idApoyo: idApoyo }, function () {
-            buscarApoyos()
-        }).fail(function(xhr) {
-            alert("Error al eliminar: " + xhr.responseText)
-        })
-    })
-})
-
 app.controller("padrinosCtrl", function ($scope, $http) {
     function buscarPadrinos() {
         $.get("/tbodyPadrinos", function (trsHTML) {
@@ -191,7 +132,6 @@ app.controller("padrinosCtrl", function ($scope, $http) {
 
     var channel = pusher.subscribe("hardy-drylands-461")
     channel.bind("eventoPadrinos", function(data) {
-        // alert(JSON.stringify(data))
         buscarPadrinos()
     })
 
@@ -220,18 +160,6 @@ app.controller("padrinosCtrl", function ($scope, $http) {
             alert("Error al eliminar: " + xhr.responseText)
         })
     })
-
-    $(document).on("click", ".btn-ingredientes", function (event) {
-        const id = $(this).data("id")
-
-        $.get(`/productos/ingredientes/${id}`, function (html) {
-            modal(html, "Ingredientes", [
-                {html: "Aceptar", class: "btn btn-secondary", fun: function (event) {
-                    closeModal()
-                }}
-            ])
-        })
-    })
 })
 
 app.controller("mascotasCtrl", function ($scope, $http) {
@@ -252,7 +180,6 @@ app.controller("mascotasCtrl", function ($scope, $http) {
 
     var channel = pusher.subscribe("rapid-bird-168")
     channel.bind("eventoMascotas", function(data) {
-        // alert(JSON.stringify(data))
         buscarMascotas()
     })
 
@@ -284,11 +211,9 @@ app.controller("mascotasCtrl", function ($scope, $http) {
             method: "POST",
             data: { idMascota: id },
             success: function (res) {
-                console.log("Eliminación OK:", res);
                 buscarMascotas();
             },
             error: function (xhr, status, err) {
-                console.error("Error al eliminar:", status, err, xhr.responseText);
                 alert("Error al eliminar: " + (xhr.responseText || err || status));
             }
         })
@@ -301,10 +226,9 @@ app.controller("decoracionesCtrl", function ($scope, $http) {
             $("#tbodyDecoraciones").html(trsHTML)
         })
     }
-    //hola
+
     buscarDecoraciones()
     
-    // Enable pusher logging - don't include this in production
     Pusher.logToConsole = true
 
     var pusher = new Pusher("e57a8ad0a9dc2e83d9a2", {
@@ -313,7 +237,6 @@ app.controller("decoracionesCtrl", function ($scope, $http) {
 
     var channel = pusher.subscribe("canalDecoraciones")
     channel.bind("eventoDecoraciones", function(data) {
-        // alert(JSON.stringify(data))
         buscarDecoraciones()
     })
 
@@ -376,6 +299,61 @@ app.controller("cargoCtrl", function ($scope, $http) {
     })
 })
 
+// --- Controlador de Apoyos ---
+app.controller("apoyosCtrl", function ($scope, $http) {
+    function buscarApoyos() {
+        $.get("/tbodyApoyo", function (trsHTML) {
+            $("#tbodyApoyo").html(trsHTML)
+        })
+    }
+
+    buscarApoyos()
+    cargarMascotas()
+    cargarPadrinos()
+
+    Pusher.logToConsole = true;
+
+    var pusher = new Pusher('505a9219e50795c4885e', {
+        cluster: 'us2'
+    });
+
+    var channel = pusher.subscribe('for-nature-533');
+    channel.bind('eventoApoyos', function(data) {
+        buscarApoyos()
+    })
+
+    $(document).on("submit", "#frmApoyo", function (event) {
+        event.preventDefault()
+
+        $.post("/apoyo", {
+            idApoyo:   $("#idApoyo").val(),
+            mascota:   $("#mascota").val(),
+            padrino:   $("#padrino").val(),
+            monto:     $("#monto").val(),
+            causa:     $("#causa").val(),
+        }, function () {
+            buscarApoyos()
+            $("#frmApoyo")[0].reset()
+        }).fail(function(xhr) {
+            alert("Error al guardar: " + xhr.responseText)
+        })
+    })
+
+    $(document).off("click", ".btn-eliminar").on("click", ".btn-eliminar", function () {
+        const idApoyo = $(this).data("id")
+
+        if (!confirm("¿Seguro que deseas eliminar este apoyo?")) {
+            return
+        }
+
+        $.post("/apoyo/eliminar", { idApoyo: idApoyo }, function () {
+            buscarApoyos()
+        }).fail(function(xhr) {
+            alert("Error al eliminar: " + xhr.responseText)
+        })
+    })
+})
+
 const DateTime = luxon.DateTime
 let lxFechaHora
 
@@ -383,14 +361,11 @@ document.addEventListener("DOMContentLoaded", function (event) {
     const configFechaHora = {
         locale: "es",
         weekNumbers: true,
-        // enableTime: true,
         minuteIncrement: 15,
         altInput: true,
         altFormat: "d/F/Y",
         dateFormat: "Y-m-d",
-        // time_24hr: false
     }
 
     activeMenuOption(location.hash)
 })
-
