@@ -21,17 +21,10 @@ app.config(function ($routeProvider, $locationProvider) {
         templateUrl: "/padrinos",
         controller: "padrinosCtrl"
     })
-
-
-
-    .when("/decoraciones", {
-        templateUrl: "/decoraciones",
-        controller: "decoracionesCtrl"
+    .when("/mascotas", {
+        templateUrl: "/mascotas",
+        controller: "mascotasCtrl"
     })
-
-
-
-
     .otherwise({
         redirectTo: "/"
     })
@@ -151,7 +144,66 @@ app.controller("padrinosCtrl", function ($scope, $http) {
     })
 })
 
+app.controller("mascotasCtrl", function ($scope, $http) {
+    function buscarMascotas() {
+        $.get("/tbodyMascotas", function (trsHTML) {
+            $("#tbodyMascotas").html(trsHTML)
+        })
+    }
 
+    buscarMascotas()
+    
+    // Enable pusher logging - don't include this in production
+    Pusher.logToConsole = true
+
+    var pusher = new Pusher("c018d337fb7e8338dc3a", {
+      cluster: "us2"
+    })
+
+    var channel = pusher.subscribe("rapid-bird-168")
+    channel.bind("eventoMascotas", function(data) {
+        // alert(JSON.stringify(data))
+        buscarMascotas()
+    })
+
+    $(document).on("submit", "#frmMascota", function (event) {
+        event.preventDefault()
+
+        $.post("/mascota", {
+            idMascota: "",
+            nombre:      $("#txtNombre").val(),
+            sexo:        $("#txtSexo").val(),
+            raza:        $("#txtRaza").val(),
+            peso:        $("#txtPeso").val(),
+            condiciones: $("#txtCondiciones").val(),
+        })
+    })
+
+    $(document).off("click", ".btn-eliminar").on("click", ".btn-eliminar", function () {
+        const id = $(this).data("id");
+    
+        if (!id) {
+            alert("ID de la mascota no encontrado (id undefined). Revisa el atributo data-id en el botón.");
+            return;
+        }
+    
+        if (!confirm("¿Seguro que deseas eliminar esta mascota?")) return;
+    
+        $.ajax({
+            url: "/mascota/eliminar",
+            method: "POST",
+            data: { idMascota: id },
+            success: function (res) {
+                console.log("Eliminación OK:", res);
+                buscarMascotas();
+            },
+            error: function (xhr, status, err) {
+                console.error("Error al eliminar:", status, err, xhr.responseText);
+                alert("Error al eliminar: " + (xhr.responseText || err || status));
+            }
+        })
+    })
+})
 
 app.controller("decoracionesCtrl", function ($scope, $http) {
     function buscarDecoraciones() {
@@ -206,3 +258,4 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
