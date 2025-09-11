@@ -7,8 +7,11 @@
 from flask import Flask
 
 from flask import render_template
+from flask_cors import CORS
 from flask import request
 from flask import jsonify, make_response
+from routes.mascotas_routes import mascotas_bp
+from routes.usuarios_routes import usuarios_bp
 
 import mysql.connector
 
@@ -26,6 +29,9 @@ con = mysql.connector.connect(
 
 app = Flask(__name__)
 CORS(app)
+
+app.register_blueprint(mascotas_bp)
+app.register_blueprint(usuarios_bp)
 
 def pusherPadrinos():
     import pusher
@@ -279,3 +285,4 @@ def eliminarPadrino():
     con.close()
 
     return make_response(jsonify({}))
+
