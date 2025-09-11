@@ -1,0 +1,38 @@
+<form id="frmCargo" method="post">
+    <div class="mb-1">
+        <label for="txtDescripcion">Descripción</label>
+        <input type="text" class="form-control" id="txtDescripcion" name="txtDescripcion">
+    </div>
+    <div class="mb-1">
+        <label for="txtMonto">Monto</label>
+        <input type="number" class="form-control" id="txtMonto" name="txtMonto" step="0.01">
+    </div>
+    <div class="mb-1">
+        <label for="txtFecha">Fecha</label>
+        <input type="date" class="form-control" id="txtFecha" name="txtFecha">
+    </div>
+    <div class="mb-1">
+        <label for="txtIdMascota">ID Mascota</label>
+        <input type="number" class="form-control" id="txtIdMascota" name="txtIdMascota">
+    </div>
+    <div class="mb-1 text-end">
+        <button class="btn btn-primary">Guardar</button>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-sm">
+        <thead class="table-active">
+            <tr>
+                <th>Id</th>
+                <th>Descripción</th>
+                <th>Monto</th>
+                <th>Fecha</th>
+                <th>ID Mascota</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="tbodyCargo"></tbody>
+    </table>
+</div>
