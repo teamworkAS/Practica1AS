@@ -47,6 +47,18 @@ def pusherPadrinos():
     pusher_client.trigger("hardy-drylands-461", "eventoPadrinos", {"message": "Hola Mundo!"})
     return make_response(jsonify({}))
 
+def pusherCargo():
+    import pusher
+    pusher_client = pusher.Pusher(
+       app_id='2049018',
+       key='57413b779fac9cbb46c7',
+       secret='836dc20be56b5cabbfe9',
+       cluster='us2',
+       ssl=True
+    )
+    pusher_client.trigger("canalCargo", "eventoCargo", {"message": "Nuevo cargo"})
+    return make_response(jsonify({}))
+
 @app.route("/")
 def index():
     if not con.is_connected():
@@ -286,3 +298,69 @@ def eliminarPadrino():
 
     return make_response(jsonify({}))
 
+# ========================
+# RUTAS CARGOS
+# ========================
+@app.route("/cargo")
+def cargo():
+    return render_template("cargo.html")
+
+@app.route("/tbodyCargo")
+def tbodyCargo():
+    if not con.is_connected():
+        con.reconnect()
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    SELECT idCargo, descripcion, monto, fecha, idMascotas
+    FROM cargo
+    ORDER BY idCargo DESC
+    LIMIT 10 OFFSET 0
+    """
+    cursor.execute(sql)
+    registros = cursor.fetchall()
+    return render_template("tbodyCargo.html", cargo=registros)
+
+@app.route("/cargo", methods=["POST"])
+def guardarCargo():
+    if not con.is_connected():
+        con.reconnect()
+
+    idCargo    = request.form["idCargo"]
+    descripcion = request.form["descripcion"]
+    monto       = request.form["monto"]
+    fecha       = request.form["fecha"]
+    idMascotas  = request.form["idMascotas"]
+
+    cursor = con.cursor()
+    if idCargo:
+        sql = """
+        UPDATE cargo
+        SET descripcion = %s, monto = %s, fecha = %s, idMascotas = %s
+        WHERE idCargo = %s
+        """
+        val = (descripcion, monto, fecha, idMascotas, idCargo)
+    else:
+        sql = """
+        INSERT INTO cargo (descripcion, monto, fecha, idMascotas)
+        VALUES (%s, %s, %s, %s)
+        """
+        val = (descripcion, monto, fecha, idMascotas)
+
+    cursor.execute(sql, val)
+    con.commit()
+    con.close()
+    pusherCargo()
+    return make_response(jsonify({}))
+
+@app.route("/cargo/eliminar", methods=["POST"])
+def eliminarCargo():
+    if not con.is_connected():
+        con.reconnect()
+    idCargo = request.form["idCargo"]
+    cursor = con.cursor()
+    sql    = "DELETE FROM cargo WHERE idCargo = %s"
+    val    = (idCargo,)
+    cursor.execute(sql, val)
+    con.commit()
+    con.close()
+    return make_response(jsonify({"succes": True}))
