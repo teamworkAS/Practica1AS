@@ -236,6 +236,7 @@ def eliminarPadrino():
     cursor.execute(sql, val)
     con.commit()
     con.close()
+    pusherPadrinos()
     return make_response(jsonify({}))
 
 
@@ -452,3 +453,4 @@ def listarPadrinos():
     registros = cursor.fetchall()
     con.close()
     return make_response(jsonify(registros))
+
