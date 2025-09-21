@@ -78,7 +78,7 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
 
 // --- funciones auxiliares para llenar selects ---
 function cargarMascotas() {
-    $.get("/mascotas", function (data) {
+    $.get("/api/mascotas", function (data) {
         const $select = $("#mascota")
         $select.empty()
         $select.append('<option value="">Selecciona una mascota</option>')
@@ -89,7 +89,7 @@ function cargarMascotas() {
 }
 
 function cargarPadrinos() {
-    $.get("/padrinos", function (data) {
+    $.get("/api/padrinos", function (data) {
         const $select = $("#padrino")
         $select.empty()
         $select.append('<option value="">Selecciona un padrino</option>')
@@ -98,6 +98,7 @@ function cargarPadrinos() {
         })
     })
 }
+
 app.controller("appCtrl", function ($scope, $http) {
     $("#frmInicioSesion").submit(function (event) {
         event.preventDefault()
@@ -335,5 +336,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
 
 
