@@ -98,7 +98,6 @@ function cargarPadrinos() {
         })
     })
 }
-
 app.controller("appCtrl", function ($scope, $http) {
     $("#frmInicioSesion").submit(function (event) {
         event.preventDefault()
@@ -220,38 +219,6 @@ app.controller("mascotasCtrl", function ($scope, $http) {
     })
 })
 
-app.controller("decoracionesCtrl", function ($scope, $http) {
-    function buscarDecoraciones() {
-        $.get("/tbodyDecoraciones", function (trsHTML) {
-            $("#tbodyDecoraciones").html(trsHTML)
-        })
-    }
-
-    buscarDecoraciones()
-    
-    Pusher.logToConsole = true
-
-    var pusher = new Pusher("e57a8ad0a9dc2e83d9a2", {
-      cluster: "us2"
-    })
-
-    var channel = pusher.subscribe("canalDecoraciones")
-    channel.bind("eventoDecoraciones", function(data) {
-        buscarDecoraciones()
-    })
-
-    $(document).on("submit", "#frmDecoracion", function (event) {
-        event.preventDefault()
-
-        $.post("/decoracion", {
-            id: "",
-            nombre: $("#txtNombre").val(),
-            precio: $("#txtPrecio").val(),
-            existencias: $("#txtExistencias").val(),
-        })
-    })
-})
-
 app.controller("cargoCtrl", function ($scope, $http) {
     function buscarCargo() {
         $.get("/tbodyCargo", function (trsHTML) {
@@ -299,32 +266,31 @@ app.controller("cargoCtrl", function ($scope, $http) {
     })
 })
 
-// --- Controlador de Apoyos ---
 app.controller("apoyosCtrl", function ($scope, $http) {
     function buscarApoyos() {
         $.get("/tbodyApoyo", function (trsHTML) {
             $("#tbodyApoyo").html(trsHTML)
         })
     }
-
+    
     buscarApoyos()
     cargarMascotas()
     cargarPadrinos()
-
+    
     Pusher.logToConsole = true;
-
+    
     var pusher = new Pusher('505a9219e50795c4885e', {
         cluster: 'us2'
     });
-
+    
     var channel = pusher.subscribe('for-nature-533');
     channel.bind('eventoApoyos', function(data) {
         buscarApoyos()
     })
-
+    
     $(document).on("submit", "#frmApoyo", function (event) {
         event.preventDefault()
-
+    
         $.post("/apoyo", {
             idApoyo:   $("#idApoyo").val(),
             mascota:   $("#mascota").val(),
@@ -341,11 +307,11 @@ app.controller("apoyosCtrl", function ($scope, $http) {
 
     $(document).off("click", ".btn-eliminar").on("click", ".btn-eliminar", function () {
         const idApoyo = $(this).data("id")
-
+    
         if (!confirm("¿Seguro que deseas eliminar este apoyo?")) {
             return
         }
-
+    
         $.post("/apoyo/eliminar", { idApoyo: idApoyo }, function () {
             buscarApoyos()
         }).fail(function(xhr) {
@@ -369,3 +335,4 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
