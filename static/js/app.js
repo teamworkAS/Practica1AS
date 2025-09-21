@@ -267,57 +267,57 @@ app.controller("cargoCtrl", function ($scope, $http) {
 })
 
 app.controller("apoyosCtrl", function ($scope, $http) {
-    function buscarApoyos() {
-        $.get("/tbodyApoyo", function (trsHTML) {
-            $("#tbodyApoyo").html(trsHTML)
-        })
-    }
-    
-    buscarApoyos()
-    cargarMascotas()
-    cargarPadrinos()
-    
-    Pusher.logToConsole = true;
-    
-    var pusher = new Pusher('505a9219e50795c4885e', {
-        cluster: 'us2'
-    });
-    
-    var channel = pusher.subscribe('for-nature-533');
-    channel.bind('eventoApoyos', function(data) {
-        buscarApoyos()
+function buscarApoyos() {
+    $.get("/tbodyApoyo", function (trsHTML) {
+        $("#tbodyApoyo").html(trsHTML)
     })
-    
-    $(document).on("submit", "#frmApoyo", function (event) {
-        event.preventDefault()
-    
-        $.post("/apoyo", {
-            idApoyo:   $("#idApoyo").val(),
-            mascota:   $("#mascota").val(),
-            padrino:   $("#padrino").val(),
-            monto:     $("#monto").val(),
-            causa:     $("#causa").val(),
-        }, function () {
-            buscarApoyos()
-            $("#frmApoyo")[0].reset()
-        }).fail(function(xhr) {
-            alert("Error al guardar: " + xhr.responseText)
-        })
-    })
+}
 
-    $(document).off("click", ".btn-eliminar").on("click", ".btn-eliminar", function () {
-        const idApoyo = $(this).data("id")
-    
-        if (!confirm("¿Seguro que deseas eliminar este apoyo?")) {
-            return
-        }
-    
-        $.post("/apoyo/eliminar", { idApoyo: idApoyo }, function () {
-            buscarApoyos()
-        }).fail(function(xhr) {
-            alert("Error al eliminar: " + xhr.responseText)
-        })
+buscarApoyos()
+cargarMascotas()
+cargarPadrinos()
+
+Pusher.logToConsole = true;
+
+var pusher = new Pusher('505a9219e50795c4885e', {
+    cluster: 'us2'
+});
+
+var channel = pusher.subscribe('for-nature-533');
+channel.bind('eventoApoyos', function(data) {
+    buscarApoyos()
+})
+
+$(document).on("submit", "#frmApoyo", function (event) {
+    event.preventDefault()
+
+    $.post("/apoyo", {
+        idApoyo:   $("#idApoyo").val(),
+        mascota:   $("#mascota").val(),
+        padrino:   $("#padrino").val(),
+        monto:     $("#monto").val(),
+        causa:     $("#causa").val(),
+    }, function () {
+        buscarApoyos()
+        $("#frmApoyo")[0].reset()
+    }).fail(function(xhr) {
+        alert("Error al guardar: " + xhr.responseText)
     })
+})
+
+$(document).off("click", ".btn-eliminar").on("click", ".btn-eliminar", function () {
+    const idApoyo = $(this).data("id")
+
+    if (!confirm("¿Seguro que deseas eliminar este apoyo?")) {
+        return
+    }
+
+    $.post("/apoyo/eliminar", { idApoyo: idApoyo }, function () {
+        buscarApoyos()
+    }).fail(function(xhr) {
+        alert("Error al eliminar: " + xhr.responseText)
+    })
+})
 })
 
 const DateTime = luxon.DateTime
@@ -335,4 +335,5 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
 
