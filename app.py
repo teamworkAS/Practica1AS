@@ -369,6 +369,10 @@ def productosIngredientes(id):
     return render_template("modal.html", productosIngredientes=registros)
 
 @app.route("/mascotas")
+def mascotas():
+    return render_template("mascotas.html")
+
+@app.route("/api/mascotas")
 def listarMascotas():
     if not con.is_connected():
         con.reconnect()
@@ -381,7 +385,7 @@ def listarMascotas():
 
     return make_response(jsonify(registros))
 
-@app.route("/padrinos")
+@app.route("/api/padrinos")
 def listarPadrinos():
     if not con.is_connected():
         con.reconnect()
@@ -531,3 +535,4 @@ def eliminarApoyo():
 
     return make_response(jsonify({}))
     
+
