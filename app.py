@@ -72,14 +72,18 @@ def pusherApoyos():
 
 
 @app.route("/")
-def index():
+def landingPage():
     if not con.is_connected():
         con.reconnect()
     con.close()
-    return render_template("index.html")
+    return render_template("landing-page.html")
 
-@app.route("/app")
-def app2():
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
+@app.route("/login")
+def appLogin():
     if not con.is_connected():
         con.reconnect()
     con.close()
@@ -535,4 +539,5 @@ def eliminarApoyo():
 
     return make_response(jsonify({}))
     
+
 
