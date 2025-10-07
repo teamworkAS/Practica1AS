@@ -14,8 +14,8 @@ app.config(function ($routeProvider, $locationProvider) {
 
     $routeProvider
     .when("/", {
-        templateUrl: "/app",
-        controller: "appCtrl"
+        templateUrl: "/login",
+        controller: "loginCtrl"
     })
     .when("/padrinos", {
         templateUrl: "/padrinos",
@@ -99,7 +99,7 @@ function cargarPadrinos() {
     })
 }
 
-app.controller("appCtrl", function ($scope, $http) {
+app.controller("loginCtrl", function ($scope, $http) {
     $("#frmInicioSesion").submit(function (event) {
         event.preventDefault()
         $.post("iniciarSesion", $(this).serialize(), function (respuesta) {
@@ -336,6 +336,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
 
 
 
