@@ -22,3 +22,6 @@ def guardar_mascota(mascota):
 
 def eliminar_mascota(id_mascota):
     return eliminar_por_id(id_mascota)
+
+def obtener_mascota_por_id(id_mascota):
+    return get_by_id(id_mascota)
