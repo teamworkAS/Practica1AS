@@ -58,3 +58,17 @@ def eliminar_por_id(id_mascota):
     cursor.close()
     con.close()
     return True
+
+def get_by_id(id_mascota):
+    con = get_connection()
+    cursor = con.cursor(dictionary=True)
+    query = """
+        SELECT idMascota, nombre, sexo, raza, peso, condiciones
+        FROM mascotas
+        WHERE idMascota = %s
+    """
+    cursor.execute(query, (id_mascota,))
+    result = cursor.fetchone()
+    cursor.close()
+    con.close()
+    return result
