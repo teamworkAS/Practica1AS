@@ -98,28 +98,19 @@ function cargarPadrinos() {
         })
     })
 }
-
-app.controller("loginCtrl", function ($scope, $http, $rootScope) {
+app.controller("loginCtrl", function ($scope, $http) {
     $("#frmInicioSesion").submit(function (event) {
         event.preventDefault()
-
-        pop(".div-inicio-sesion", 'ℹ️Iniciando sesi&oacute;n, espere un momento...', "primary")
-
         $.post("iniciarSesion", $(this).serialize(), function (respuesta) {
-            enableAll()
-
             if (respuesta.length) {
-                localStorage.setItem("login", "1")
-                localStorage.setItem("preferencias", JSON.stringify(respuesta[0]))
-                $("#frmInicioSesion").get(0).reset()
-                location.reload()
+                alert("Iniciaste Sesión")
+                window.location = "/dashboard#/mascotas"
+
                 return
             }
 
-            pop(".div-inicio-sesion", "Usuario y/o contrase&ntilde;a incorrecto(s)", "danger")
+            alert("Usuario y/o Contraseña Incorrecto(s)")
         })
-
-        disableAll()
     })
 })
 app.controller("padrinosCtrl", function ($scope, $http) {
@@ -489,6 +480,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
 
 
 
