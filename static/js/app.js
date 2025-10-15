@@ -317,8 +317,8 @@ app.controller("apoyosCtrl", function ($scope, $http) {
                     html += `
                         <tr>
                             <td>${apoyo.idApoyo}</td>
-                            <td>${apoyo.idMascota}</td>
-                            <td>${apoyo.idPadrino}</td>
+                            <td>${apoyo.mascota}</td>
+                            <td>${apoyo.padrino}</td>
                             <td>${apoyo.monto}</td>
                             <td>${apoyo.causa}</td>
                             <td><button class="btn btn-info btn-editar" data-id="${ apoyo.idApoyo }">Editar</button></td>
@@ -418,6 +418,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
 
 
 
