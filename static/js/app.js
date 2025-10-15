@@ -115,13 +115,76 @@ app.controller("loginCtrl", function ($scope, $http) {
     })
 })
 app.controller("padrinosCtrl", function ($scope, $http) {
-    function buscarPadrinos() {
-        $.get("/tbodyPadrinos", function (trsHTML) {
-            $("#tbodyPadrinos").html(trsHTML)
-        })
-    }
+    let autoActualizar = false;
+    
+    function buscarPadrinos(texto = "") {
+        if (texto.trim() === "") {
+            $.get("/tbodyPadrinos", function (trsHTML) {
+                $("#tbodyPadrinos").html(trsHTML);
+            });
+        } else {
+            $.get("/padrinos/buscar", { busqueda: texto }, function (data) {
+                let html = "";
+                data.forEach(padrino => {
+                    html += `
+                        <tr>
+                            <td>${padrino.idPadrino}</td>
+                            <td>${padrino.nombrePadrino}</td>
+                            <td>${padrino.sexo}</td>
+                            <td>${padrino.telefono}</td>
+                            <td>${padrino.correoElectronico }</td>
+                            <td><button class="btn btn-info btn-editar" data-id="${ padrino.idPadrino }">Editar</button></td>
+                            <td><button class="btn btn-info btn-eliminar" data-id="${ padrino.idPadrino }">Eliminar</button></td>  
+                        </tr>
+                    `;
+                });
+                $("#tbodyPadrinos").html(html);
+            });
+        }
+    }    
 
     buscarPadrinos()
+
+    // --- búsqueda ---
+    $(document).on("click", "#btnBuscar", function () {
+        const texto = $("#Contbuscar").val();
+        buscarPadrinos(texto);
+    });
+
+    // --- editar ---
+    $(document).on("click", ".btn-editar", function () {
+        const id = $(this).data("id");
+
+        $.get("/padrino/" + id, function (respuesta) {
+            if (respuesta.length > 0) {
+                const padrino = respuesta[0];
+                $("#idPadrino").val(padrino.idPadrino);
+                $("#nombrePadrino").val(padrino.nombrePadrino);
+                $("#sexo").val(padrino.sexo);
+                $("#telefono").val(padrino.telefono);
+                $("#correoElectronico ").val(padrino.correoElectronico);
+            }
+        })
+    })
+
+    // --- guardar (insertar o actualizar) ---
+    $(document).on("submit", "#frmPadrino", function (event) {
+        event.preventDefault();
+
+        $.post("/padrino", {
+            idPadrino: $("#idPadrino").val(),
+            nombrePadrino: $("#txtNombrePadrino").val(),
+            sexo: $("#txtSexo").val(),
+            telefono: $("#txtTelefono").val(),
+            correoElectronico: $("#txtEmail").val(),
+        }, function () {
+            buscarPadrinos();
+            $("#frmPadrino")[0].reset();
+            $("#idPadrino").val(""); // limpiar idPadrino para el próximo insert
+        }).fail(function(xhr) {
+            alert("Error al guardar: " + xhr.responseText);
+        });
+    });
     
     // Enable pusher logging - don't include this in production
     Pusher.logToConsole = true
@@ -418,6 +481,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
 
 
 
