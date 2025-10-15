@@ -171,13 +171,10 @@ app.controller("mascotasCtrl", function ($scope, $http) {
 
     buscarMascotas()
     
-    // Enable pusher logging - don't include this in production
     Pusher.logToConsole = true
-
     var pusher = new Pusher("c018d337fb7e8338dc3a", {
-      cluster: "us2"
+        cluster: "us2"
     })
-
     var channel = pusher.subscribe("rapid-bird-168")
     channel.bind("eventoMascotas", function(data) {
         buscarMascotas()
@@ -186,39 +183,70 @@ app.controller("mascotasCtrl", function ($scope, $http) {
     $(document).on("submit", "#frmMascota", function (event) {
         event.preventDefault()
 
-        $.post("/mascota", {
-            idMascota: "",
-            nombre:      $("#txtNombre").val(),
-            sexo:        $("#txtSexo").val(),
-            raza:        $("#txtRaza").val(),
-            peso:        $("#txtPeso").val(),
+        const idMascota = $("#txtIdMascota").val() || ""
+        const datos = {
+            idMascota: idMascota,
+            nombre: $("#txtNombre").val(),
+            sexo: $("#txtSexo").val(),
+            raza: $("#txtRaza").val(),
+            peso: $("#txtPeso").val(),
             condiciones: $("#txtCondiciones").val(),
+        }
+
+        $.post("/mascota", datos, function (resp) {
+            if (resp.status === "ok") {
+                alert(idMascota ? "Mascota actualizada correctamente" : "Mascota registrada correctamente")
+                $("#frmMascota")[0].reset()
+                $("#txtIdMascota").val("")
+                buscarMascotas()
+            } else {
+                alert("Ocurrió un error al guardar")
+            }
         })
     })
 
     $(document).off("click", ".btn-eliminar").on("click", ".btn-eliminar", function () {
-        const id = $(this).data("id");
-    
+        const id = $(this).data("id")
+
         if (!id) {
-            alert("ID de la mascota no encontrado (id undefined). Revisa el atributo data-id en el botón.");
-            return;
+            alert("ID de la mascota no encontrado (id undefined).")
+            return
         }
-    
-        if (!confirm("¿Seguro que deseas eliminar esta mascota?")) return;
-    
+
+        if (!confirm("¿Seguro que deseas eliminar esta mascota?")) return
+
         $.ajax({
             url: "/mascota/eliminar",
             method: "POST",
             data: { idMascota: id },
             success: function (res) {
-                buscarMascotas();
+                buscarMascotas()
             },
             error: function (xhr, status, err) {
-                alert("Error al eliminar: " + (xhr.responseText || err || status));
+                alert("Error al eliminar: " + (xhr.responseText || err || status))
+            }
+        })
+    })
+    
+    $(document).off("click", ".btn-editar").on("click", ".btn-editar", function () {
+        const id = $(this).data("id")
+
+        $.get(`/mascota/${id}`, function (data) {
+            if (data && data.idMascota) {
+                $("#txtIdMascota").val(data.idMascota)
+                $("#txtNombre").val(data.nombre)
+                $("#txtSexo").val(data.sexo)
+                $("#txtRaza").val(data.raza)
+                $("#txtPeso").val(data.peso)
+                $("#txtCondiciones").val(data.condiciones)
+                $("#frmMascota button[type='submit']").text("Actualizar")
+            } else {
+                alert("No se encontró la mascota seleccionada.")
             }
         })
     })
 })
+
 
 app.controller("cargoCtrl", function ($scope, $http) {
     function buscarCargo() {
@@ -336,6 +364,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
 
 
 
