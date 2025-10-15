@@ -413,22 +413,21 @@ def buscarApoyos():
     
     cursor = con.cursor(dictionary=True)
     sql    = """
-    SELECT idApoyo,
-           idMascota,
-           idPadrino,
-           monto,
-           causa	
+    SELECT a.idApoyo,
+       m.nombre AS mascota,
+       p.nombre AS padrino,
+       a.monto,
+       a.causa
+        FROM apoyos a
+        JOIN mascotas m ON a.idMascota = m.idMascota
+        JOIN padrinos p ON a.idPadrino = p.idPadrino
+        WHERE m.nombre LIKE %s
+           OR p.nombre LIKE %s
+           OR a.monto  LIKE %s
+           OR a.causa  LIKE %s
+        ORDER BY a.idApoyo DESC
+        LIMIT 10 OFFSET 0
 
-    FROM apoyos
-
-    WHERE idMascota LIKE %s
-    OR    idPadrino LIKE %s
-    OR    monto     LIKE %s
-    OR    causa     LIKE %s
-
-    ORDER BY idApoyo DESC
-
-    LIMIT 10 OFFSET 0
     """
     val    = (busqueda, busqueda, busqueda, busqueda)
 
@@ -539,5 +538,6 @@ def eliminarApoyo():
 
     return make_response(jsonify({}))
     
+
 
 
