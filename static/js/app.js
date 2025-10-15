@@ -170,11 +170,9 @@ app.controller("mascotasCtrl", function ($scope, $http) {
     }
 
     buscarMascotas()
-    
+
     Pusher.logToConsole = true
-    var pusher = new Pusher("c018d337fb7e8338dc3a", {
-        cluster: "us2"
-    })
+    var pusher = new Pusher("c018d337fb7e8338dc3a", { cluster: "us2" })
     var channel = pusher.subscribe("rapid-bird-168")
     channel.bind("eventoMascotas", function(data) {
         buscarMascotas()
@@ -195,58 +193,65 @@ app.controller("mascotasCtrl", function ($scope, $http) {
 
         $.post("/mascota", datos, function (resp) {
             if (resp.status === "ok") {
-                alert(idMascota ? "Mascota actualizada correctamente" : "Mascota registrada correctamente")
+                alert(idMascota ? "Mascota actualizada" : "Mascota registrada")
                 $("#frmMascota")[0].reset()
                 $("#txtIdMascota").val("")
                 buscarMascotas()
-            } else {
-                alert("Ocurrió un error al guardar")
-            }
-        })
-    })
-
-    $(document).off("click", ".btn-eliminar").on("click", ".btn-eliminar", function () {
-        const id = $(this).data("id")
-
-        if (!id) {
-            alert("ID de la mascota no encontrado (id undefined).")
-            return
-        }
-
-        if (!confirm("¿Seguro que deseas eliminar esta mascota?")) return
-
-        $.ajax({
-            url: "/mascota/eliminar",
-            method: "POST",
-            data: { idMascota: id },
-            success: function (res) {
-                buscarMascotas()
-            },
-            error: function (xhr, status, err) {
-                alert("Error al eliminar: " + (xhr.responseText || err || status))
+                $("#frmMascota button[type='submit']").text("Guardar")
             }
         })
     })
     
+    $(document).off("click", ".btn-eliminar").on("click", ".btn-eliminar", function () {
+        const id = $(this).data("id")
+        if (!id) return alert("ID no encontrado")
+        if (!confirm("¿Seguro que deseas eliminar esta mascota?")) return
+
+        $.post("/mascota/eliminar", { idMascota: id }, function () {
+            buscarMascotas()
+        })
+    })
+
     $(document).off("click", ".btn-editar").on("click", ".btn-editar", function () {
         const id = $(this).data("id")
 
         $.get(`/mascota/${id}`, function (data) {
-            if (data && data.idMascota) {
-                $("#txtIdMascota").val(data.idMascota)
-                $("#txtNombre").val(data.nombre)
-                $("#txtSexo").val(data.sexo)
-                $("#txtRaza").val(data.raza)
-                $("#txtPeso").val(data.peso)
-                $("#txtCondiciones").val(data.condiciones)
-                $("#frmMascota button[type='submit']").text("Actualizar")
-            } else {
-                alert("No se encontró la mascota seleccionada.")
-            }
+            $("#txtIdMascota").val(data.idMascota)
+            $("#txtNombre").val(data.nombre)
+            $("#txtSexo").val(data.sexo)
+            $("#txtRaza").val(data.raza)
+            $("#txtPeso").val(data.peso)
+            $("#txtCondiciones").val(data.condiciones)
+            $("#frmMascota button[type='submit']").text("Actualizar")
         })
     })
-})
 
+    let timer = null
+    $("#txtBuscarMascota").on("keyup", function () {
+        clearTimeout(timer)
+        const busqueda = $(this).val()
+        timer = setTimeout(() => {
+            $.get("/mascotas/buscar", { busqueda: busqueda }, function (data) {
+                let html = ""
+                data.forEach(m => {
+                    html += `
+                        <tr>
+                            <td>${m.idMascota}</td>
+                            <td>${m.nombre}</td>
+                            <td>${m.sexo}</td>
+                            <td>${m.raza}</td>
+                            <td>${m.peso}</td>
+                            <td>${m.condiciones}</td>
+                            <td><button class="btn btn-info btn-eliminar" data-id="${m.idMascota}">Eliminar</button></td>
+                            <td><button class="btn btn-info btn-editar" data-id="${m.idMascota}">Editar</button></td>
+                        </tr>
+                    `
+                })
+                $("#tbodyMascotas").html(html)
+            })
+        }, 300)
+    })
+})
 
 app.controller("cargoCtrl", function ($scope, $http) {
     function buscarCargo() {
@@ -413,6 +418,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
 
 
 
