@@ -1,4 +1,4 @@
-from repositories.mascotas_repository import get_all, search, save, eliminar_por_id
+from repositories.mascotas_repository import get_all, search, save, eliminar_por_id, get_by_id
 import pusher
 
 pusher_client = pusher.Pusher(
