@@ -1,21 +1,12 @@
-# python.exe -m venv .venv
-# cd .venv/Scripts
-# activate.bat
-# py -m ensurepip --upgrade
-# pip install -r requirements.txt
-from functools import wraps
-from flask import Flask
-from flask import render_template
+from flask import Flask, render_template, request, jsonify, make_response, session
 from flask_cors import CORS
-from flask import request
-from flask import jsonify, make_response
-from routes.mascotas_routes import mascotas_bp
-
 import mysql.connector
 import datetime
 import pytz
+from functools import wraps
+from routes.mascotas_routes import mascotas_bp
 
-from flask_cors import CORS, cross_origin
+app.secret_key = "clave-super-secreta-2025"
 
 con = mysql.connector.connect(
     host="185.232.14.52",
@@ -588,6 +579,7 @@ def eliminarApoyo():
 
     return make_response(jsonify({}))
     
+
 
 
 
