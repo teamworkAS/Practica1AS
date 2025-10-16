@@ -6,8 +6,6 @@ import pytz
 from functools import wraps
 from routes.mascotas_routes import mascotas_bp
 
-app.secret_key = "clave-super-secreta-2025"
-
 con = mysql.connector.connect(
     host="185.232.14.52",
     database="u760464709_23005116_bd",
@@ -16,6 +14,7 @@ con = mysql.connector.connect(
 )
 
 app = Flask(__name__)
+app.secret_key = "clave-super-secreta-2025"
 CORS(app)
 
 app.register_blueprint(mascotas_bp)
@@ -579,6 +578,7 @@ def eliminarApoyo():
 
     return make_response(jsonify({}))
     
+
 
 
 
