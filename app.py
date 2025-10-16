@@ -3,7 +3,7 @@
 # activate.bat
 # py -m ensurepip --upgrade
 # pip install -r requirements.txt
-
+from functools import wraps
 from flask import Flask
 from flask import render_template
 from flask_cors import CORS
@@ -70,6 +70,16 @@ def pusherApoyos():
     pusher_client.trigger("for-nature-533", "eventoApoyos", {"message": "Hola Mundo!"})
     return make_response(jsonify({}))
 
+def login(fun):
+    @wraps(fun)
+    def decorador(*args, **kwargs):
+        if not session.get("login"):
+            return jsonify({
+                "estado": "error",
+                "respuesta": "No has iniciado sesión"
+            }), 401
+        return fun(*args, **kwargs)
+    return decorador
 
 @app.route("/")
 def landingPage():
@@ -84,22 +94,25 @@ def dashboard():
 
 @app.route("/login")
 def appLogin():
-    if not con.is_connected():
-        con.reconnect()
-    con.close()
     return render_template("login.html")
 
+@app.route("/fechaHora")
+def fechaHora():
+    tz    = pytz.timezone("America/Matamoros")
+    ahora = datetime.datetime.now(tz)
+    return ahora.strftime("%Y-%m-%d %H:%M:%S")
+
 @app.route("/iniciarSesion", methods=["POST"])
+# Usar cuando solo se quiera usar CORS en rutas específicas
+# @cross_origin()
 def iniciarSesion():
-    if not con.is_connected():
-        con.reconnect()
+    usuario    = request.form["usuario"]
+    contrasena = request.form["contrasena"]
 
-    usuario    = request.form["txtUsuario"]
-    contrasena = request.form["txtContrasena"]
-
+    con    = con_pool.get_connection()
     cursor = con.cursor(dictionary=True)
     sql    = """
-    SELECT Id_Usuario
+    SELECT Id_Usuario, Nombre_Usuario, Tipo_Usuario
     FROM usuarios
     WHERE Nombre_Usuario = %s
     AND Contrasena = %s
@@ -108,11 +121,37 @@ def iniciarSesion():
 
     cursor.execute(sql, val)
     registros = cursor.fetchall()
-    con.close()
+    if cursor:
+        cursor.close()
+    if con and con.is_connected():
+        con.close()
+
+    session["login"]      = False
+    session["login-usr"]  = None
+    session["login-tipo"] = 0
+    if registros:
+        usuario = registros[0]
+        session["login"]      = True
+        session["login-usr"]  = usuario["Nombre_Usuario"]
+        session["login-tipo"] = usuario["Tipo_Usuario"]
 
     return make_response(jsonify(registros))
 
+@app.route("/cerrarSesion", methods=["POST"])
+@login
+def cerrarSesion():
+    session["login"]      = False
+    session["login-usr"]  = None
+    session["login-tipo"] = 0
+    return make_response(jsonify({}))
 
+@app.route("/preferencias")
+@login
+def preferencias():
+    return make_response(jsonify({
+        "usr": session.get("login-usr"),
+        "tipo": session.get("login-tipo", 2)
+    }))
 # ========================
 # RUTAS PADRINOS
 # ========================
@@ -121,6 +160,7 @@ def padrinos():
     return render_template("padrinos.html")
 
 @app.route("/tbodyPadrinos")
+@login
 def tbodyPadrinos():
     if not con.is_connected():
         con.reconnect()
@@ -141,6 +181,7 @@ def tbodyPadrinos():
     return render_template("tbodyPadrinos.html", padrinos=registros)
 
 @app.route("/padrinos/buscar", methods=["GET"])
+@login
 def buscarPadrinos():
     if not con.is_connected():
         con.reconnect()
@@ -177,6 +218,7 @@ def buscarPadrinos():
     return make_response(jsonify(registros))
 
 @app.route("/padrino", methods=["POST"])
+@login
 def guardarPadrinos():
     if not con.is_connected():
         con.reconnect()
@@ -213,6 +255,7 @@ def guardarPadrinos():
     return make_response(jsonify({}))
 
 @app.route("/padrino/<int:idPadrino>")
+@login
 def editarPadrino(idPadrino):
     if not con.is_connected():
         con.reconnect()
@@ -251,6 +294,7 @@ def cargo():
     return render_template("cargo.html")
 
 @app.route("/tbodyCargo")
+@login
 def tbodyCargo():
     if not con.is_connected():
         con.reconnect()
@@ -266,6 +310,7 @@ def tbodyCargo():
     return render_template("tbodyCargo.html", cargo=registros)
 
 @app.route("/cargo", methods=["POST"])
+@login
 def guardarCargo():
     if not con.is_connected():
         con.reconnect()
@@ -319,6 +364,7 @@ def apoyos():
     return render_template("apoyos.html")
 
 @app.route("/tbodyApoyo")
+@login
 def tbodyApoyo():
     if not con.is_connected():
         con.reconnect()
@@ -354,6 +400,7 @@ def tbodyApoyo():
     return render_template("tbodyApoyo.html", apoyos=registros)
 
 @app.route("/productos/ingredientes/<int:idApoyo>")
+@login
 def productosIngredientes(id):
     if not con.is_connected():
         con.reconnect()
@@ -403,6 +450,7 @@ def listarPadrinos():
     return make_response(jsonify(registros))
 
 @app.route("/apoyos/buscar", methods=["GET"])
+@login
 def buscarApoyos():
     if not con.is_connected():
         con.reconnect()
@@ -419,8 +467,8 @@ def buscarApoyos():
        a.monto,
        a.causa
         FROM apoyos a
-        INNER JOIN mascotas m ON a.idMascota = m.idMascota
-        INNER JOIN padrinos p ON a.idPadrino = p.idPadrino
+        JOIN mascotas m ON a.idMascota = m.idMascota
+        JOIN padrinos p ON a.idPadrino = p.idPadrino
         WHERE m.nombre LIKE %s
            OR p.nombre LIKE %s
            OR a.monto  LIKE %s
@@ -457,6 +505,7 @@ def buscarApoyos():
 @app.route("/apoyo", methods=["POST"])
 # Usar cuando solo se quiera usar CORS en rutas específicas
 # @cross_origin()
+@login
 def guardarApoyo():
     if not con.is_connected():
         con.reconnect()
@@ -498,6 +547,7 @@ def guardarApoyo():
     return make_response(jsonify({}))
     
 @app.route("/apoyo/<int:idApoyo>")
+@login
 def editarApoyos(idApoyo):
     if not con.is_connected():
         con.reconnect()
@@ -538,7 +588,3 @@ def eliminarApoyo():
 
     return make_response(jsonify({}))
     
-
-
-
-
