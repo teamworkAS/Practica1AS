@@ -822,6 +822,51 @@ app.controller("cargoCtrl", function ($scope, $http) {
             alert("Error al eliminar: " + xhr.responseText)
         })
     })
+     // --- editar ---
+    $(document).on("click", ".btn-editar", function () {
+        const id = $(this).data("id");
+
+        $.get("/cargo/" + id, function (respuesta) {
+            if (respuesta.length > 0) {
+                const cargo = respuesta[0];
+                $("#idCargo").val(cargo.idCargo);
+                $("#txtDescripcion").val(cargo.descripcion);
+                $("#txtMonto").val(cargo.monto);
+                $("#txtFecha").val(cargo.fecha);
+                $("#txtIdMascostas").val(cargo.idMascotas);
+            }
+        })
+    })
+
+    $(document).on("submit", "#frmCargo", function (event) {
+    event.preventDefault();
+
+    const idCargo = $("#idCargo").val();
+    const descripcion = $("#txtDescripcion").val();
+    const monto = $("#txtMonto").val();
+    const fecha = $("#txtFecha").val();
+    const idMascotas = $("#txtIdMascota").val();
+
+    // Debug opcional:
+    console.log({ idCargo, descripcion, monto, fecha, idMascotas });
+
+    $.post("/cargo", {
+        idCargo: idCargo,
+        descripcion: descripcion,
+        monto: monto,
+        fecha: fecha,
+        idMascotas: idMascotas
+    })
+    .done(function () {
+        buscarCargo();
+        $("#frmCargo")[0].reset();
+        $("#idCargo").val("");
+    })
+    .fail(function (xhr) {
+        alert("Error al guardar: " + xhr.responseText);
+    });
+});
+
 })
 
 app.controller("apoyosCtrl", function ($scope, $http) {
@@ -930,3 +975,4 @@ app.controller("apoyosCtrl", function ($scope, $http) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
