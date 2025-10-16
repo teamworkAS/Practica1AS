@@ -49,7 +49,7 @@ const app = angular.module("angularjsApp", ["ngRoute"])
 app.config(function ($routeProvider, $locationProvider) {
     $locationProvider.hashPrefix("")
 
-    $routeProvider
+   $routeProvider
     .when("/", {
         templateUrl: "/login",
         controller: "loginCtrl"
@@ -551,6 +551,7 @@ function cargarPadrinos() {
         })
     })
 }
+
 app.controller("loginCtrl", function ($scope, $http, $rootScope) {
     $("#frmInicioSesion").submit(function (event) {
         event.preventDefault()
@@ -574,6 +575,7 @@ app.controller("loginCtrl", function ($scope, $http, $rootScope) {
         disableAll()
     })
 })
+
 app.controller("padrinosCtrl", function ($scope, $http) {
     let autoActualizar = false;
     
@@ -918,3 +920,4 @@ app.controller("apoyosCtrl", function ($scope, $http) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
