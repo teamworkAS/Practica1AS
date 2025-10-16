@@ -158,10 +158,10 @@ app.controller("padrinosCtrl", function ($scope, $http) {
             if (respuesta.length > 0) {
                 const padrino = respuesta[0];
                 $("#idPadrino").val(padrino.idPadrino);
-                $("#nombrePadrino").val(padrino.nombrePadrino);
-                $("#sexo").val(padrino.sexo);
-                $("#telefono").val(padrino.telefono);
-                $("#correoElectronico ").val(padrino.correoElectronico);
+                $("#txtNombrePadrino").val(padrino.nombrePadrino);
+                $("#txtSexo").val(padrino.sexo);
+                $("#txtTelefono").val(padrino.telefono);
+                $("#txtEmail ").val(padrino.correoElectronico);
             }
         })
     })
@@ -480,6 +480,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
 
 
 
