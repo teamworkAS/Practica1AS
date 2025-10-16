@@ -915,34 +915,6 @@ app.controller("apoyosCtrl", function ($scope, $http) {
     });
 });
 
-const DateTime = luxon.DateTime
-let lxFechaHora
-
 document.addEventListener("DOMContentLoaded", function (event) {
-    const configFechaHora = {
-        locale: "es",
-        weekNumbers: true,
-        minuteIncrement: 15,
-        altInput: true,
-        altFormat: "d/F/Y",
-        dateFormat: "Y-m-d",
-    }
-
     activeMenuOption(location.hash)
 })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
