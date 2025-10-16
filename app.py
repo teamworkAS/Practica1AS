@@ -240,7 +240,7 @@ def guardarPadrinos():
             correoElectronico = %s
         WHERE idPadrino = %s
         """
-        val = (nombrePadrino, sexo, telefono, correoElectronico, idPadrino)
+        val = (nombrePadrino, sexo, telefono, correoElectronico)
     else:
         sql = """
         INSERT INTO padrinos (nombrePadrino, sexo, telefono, correoElectronico)
@@ -588,3 +588,4 @@ def eliminarApoyo():
 
     return make_response(jsonify({}))
     
+
