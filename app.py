@@ -62,16 +62,13 @@ def pusherApoyos():
     pusher_client.trigger("for-nature-533", "eventoApoyos", {"message": "Hola Mundo!"})
     return make_response(jsonify({}))
 
-def login(fun):
-    @wraps(fun)
-    def decorador(*args, **kwargs):
-        if not session.get("login"):
-            return jsonify({
-                "estado": "error",
-                "respuesta": "No has iniciado sesión"
-            }), 401
-        return fun(*args, **kwargs)
-    return decorador
+def login(view_func):
+    @wraps(view_func)
+    def wrapped_view(**kwargs):
+        if 'usuario' not in session:
+            return redirect(url_for('login'))
+        return view_func(**kwargs)
+    return wrapped_view
 
 @app.route("/")
 def landingPage():
@@ -532,3 +529,4 @@ def eliminarApoyo():
     cursor.close()
     con.close()
     return make_response(jsonify({}))
+
