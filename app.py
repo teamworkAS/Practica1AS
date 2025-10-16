@@ -6,12 +6,14 @@ import pytz
 from functools import wraps
 from routes.mascotas_routes import mascotas_bp
 
-con = mysql.connector.connect(
-    host="185.232.14.52",
-    database="u760464709_23005116_bd",
-    user="u760464709_23005116_usr",
-    password="z8[T&05u"
-)
+def get_connection():
+    """Crea una nueva conexión a MySQL cada vez que se llama"""
+    return mysql.connector.connect(
+        host="185.232.14.52",
+        database="u760464709_23005116_bd",
+        user="u760464709_23005116_usr",
+        password="z8[T&05u"
+    )
 
 app = Flask(__name__)
 app.secret_key = "clave-super-secreta-2025"
@@ -93,36 +95,33 @@ def fechaHora():
     return ahora.strftime("%Y-%m-%d %H:%M:%S")
 
 @app.route("/iniciarSesion", methods=["POST"])
-# Usar cuando solo se quiera usar CORS en rutas específicas
-# @cross_origin()
 def iniciarSesion():
-    usuario    = request.form["usuario"]
+    usuario = request.form["usuario"]
     contrasena = request.form["contrasena"]
 
-    con    = con.get_connection()
+    con = get_connection()
     cursor = con.cursor(dictionary=True)
-    sql    = """
+    sql = """
     SELECT Id_Usuario, Nombre_Usuario, Tipo_Usuario
     FROM usuarios
     WHERE Nombre_Usuario = %s
     AND Contrasena = %s
     """
-    val    = (usuario, contrasena)
+    val = (usuario, contrasena)
 
     cursor.execute(sql, val)
     registros = cursor.fetchall()
-    if cursor:
-        cursor.close()
-    if con and con.is_connected():
-        con.close()
+    cursor.close()
+    con.close()
 
-    session["login"]      = False
-    session["login-usr"]  = None
+    session["login"] = False
+    session["login-usr"] = None
     session["login-tipo"] = 0
+
     if registros:
         usuario = registros[0]
-        session["login"]      = True
-        session["login-usr"]  = usuario["Nombre_Usuario"]
+        session["login"] = True
+        session["login-usr"] = usuario["Nombre_Usuario"]
         session["login-tipo"] = usuario["Tipo_Usuario"]
 
     return make_response(jsonify(registros))
@@ -130,9 +129,7 @@ def iniciarSesion():
 @app.route("/cerrarSesion", methods=["POST"])
 @login
 def cerrarSesion():
-    session["login"]      = False
-    session["login-usr"]  = None
-    session["login-tipo"] = 0
+    session.clear()
     return make_response(jsonify({}))
 
 @app.route("/preferencias")
@@ -142,6 +139,7 @@ def preferencias():
         "usr": session.get("login-usr"),
         "tipo": session.get("login-tipo", 2)
     }))
+    
 # ========================
 # RUTAS PADRINOS
 # ========================
@@ -592,6 +590,7 @@ def eliminarApoyo():
 
     return make_response(jsonify({}))
     
+
 
 
 
