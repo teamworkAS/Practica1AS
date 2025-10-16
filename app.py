@@ -109,7 +109,7 @@ def iniciarSesion():
     usuario    = request.form["usuario"]
     contrasena = request.form["contrasena"]
 
-    con    = con_pool.get_connection()
+    con    = con.get_connection()
     cursor = con.cursor(dictionary=True)
     sql    = """
     SELECT Id_Usuario, Nombre_Usuario, Tipo_Usuario
@@ -588,5 +588,6 @@ def eliminarApoyo():
 
     return make_response(jsonify({}))
     
+
 
 
