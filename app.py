@@ -284,7 +284,6 @@ def cargo():
     return render_template("cargo.html")
 
 @app.route("/tbodyCargo")
-@login
 def tbodyCargo():
     if not con.is_connected():
         con.reconnect()
@@ -300,37 +299,36 @@ def tbodyCargo():
     return render_template("tbodyCargo.html", cargo=registros)
 
 @app.route("/cargo", methods=["POST"])
-@login
 def guardarCargo():
     if not con.is_connected():
         con.reconnect()
 
-    idCargo    = request.form["idCargo"]
-    descripcion = request.form["descripcion"]
-    monto       = request.form["monto"]
-    fecha       = request.form["fecha"]
-    idMascotas  = request.form["idMascotas"]
+    idCargo = request.form.get("idCargo")
+    descripcion = request.form.get("descripcion")
+    monto = request.form.get("monto")
+    fecha = request.form.get("fecha") or None
+    idMascotas = request.form.get("idMascotas") or None
 
     cursor = con.cursor()
-    if idCargo:
-        sql = """
-        UPDATE cargo
-        SET descripcion = %s, monto = %s, fecha = %s, idMascotas = %s
-        WHERE idCargo = %s
-        """
-        val = (descripcion, monto, fecha, idMascotas, idCargo)
-    else:
-        sql = """
-        INSERT INTO cargo (descripcion, monto, fecha, idMascotas)
-        VALUES (%s, %s, %s, %s)
-        """
-        val = (descripcion, monto, fecha, idMascotas)
 
-    cursor.execute(sql, val)
-    con.commit()
-    con.close()
-    pusherCargo()
-    return make_response(jsonify({}))
+    try:
+        if not idCargo:  # Insertar nuevo
+            sql = "INSERT INTO cargo (descripcion, monto, fecha, idMascotas) VALUES (%s, %s, %s, %s)"
+            val = (descripcion, monto, fecha, idMascotas)
+        else:  # Editar existente
+            sql = "UPDATE cargo SET descripcion=%s, monto=%s, fecha=%s, idMascotas=%s WHERE idCargo=%s"
+            val = (descripcion, monto, fecha, idMascotas, idCargo)
+
+        cursor.execute(sql, val)
+        con.commit()
+        cursor.close()
+        return make_response(jsonify({"status": "ok"}))
+    except Exception as e:
+        con.rollback()
+        print("Error al guardar cargo:", e)
+        return make_response(jsonify({"status": "error", "message": str(e)}), 500)
+
+
 
 @app.route("/cargo/eliminar", methods=["POST"])
 def eliminarCargo():
@@ -344,6 +342,22 @@ def eliminarCargo():
     con.commit()
     con.close()
     return make_response(jsonify({"succes": True}))
+
+@app.route("/cargo/<int:idCargo>")
+def obtenerCargo(idCargo):
+    if not con.is_connected():
+        con.reconnect()
+
+    cursor = con.cursor(dictionary=True)
+    sql = """
+    SELECT idCargo, descripcion, monto, fecha, idMascotas
+    FROM cargo
+    WHERE idCargo = %s
+    """
+    cursor.execute(sql, (idCargo,))
+    registros = cursor.fetchall()
+    con.close()
+    return make_response(jsonify(registros))
 
 
 # ========================
@@ -578,6 +592,7 @@ def eliminarApoyo():
 
     return make_response(jsonify({}))
     
+
 
 
 
