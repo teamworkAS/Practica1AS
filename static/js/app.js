@@ -85,7 +85,7 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
     $rootScope.incompleteRequest = false
     $rootScope.completeRequest   = false
     $rootScope.login             = localStorage.getItem("login")
-    const defaultRouteAuth       = "#/rentas"
+    const defaultRouteAuth       = "#/mascotas"
     let timesChangesSuccessRoute = 0
 
 
@@ -230,22 +230,22 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
 
 
             // swipe
-            if (path.indexOf("rentas") != -1) {
+            if (path.indexOf("apoyos") != -1) {
                 $rootScope.leftView      = ""
-                $rootScope.rightView     = "clientes"
+                $rootScope.rightView     = "padrinos"
                 $rootScope.leftViewLink  = ""
-                $rootScope.rightViewLink = "#/clientes"
+                $rootScope.rightViewLink = "#/padrinos"
             }
-            else if (path.indexOf("clientes") != -1) {
-                $rootScope.leftView      = "rentas"
-                $rootScope.rightView     = "trajes"
-                $rootScope.leftViewLink  = "#/rentas"
-                $rootScope.rightViewLink = "#/trajes"
+            else if (path.indexOf("padrinos") != -1) {
+                $rootScope.leftView      = "apoyos"
+                $rootScope.rightView     = "mascotas"
+                $rootScope.leftViewLink  = "#/apoyos"
+                $rootScope.rightViewLink = "#/mascotas"
             }
             else if (path.indexOf("ventas") != -1) {
-                $rootScope.leftView      = "clientes"
+                $rootScope.leftView      = "padrinos"
                 $rootScope.rightView     = ""
-                $rootScope.leftViewLink  = "#/clientes"
+                $rootScope.leftViewLink  = "#/padrinos"
                 $rootScope.rightViewLink = ""
             }
             else {
