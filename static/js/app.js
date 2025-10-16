@@ -7,6 +7,7 @@ function activeMenuOption(href) {
     .addClass("active")
     .attr("aria-current", "page")
 }
+
 function disableAll() {
     const elements = document.querySelectorAll(".while-waiting")
     elements.forEach(function (el, index) {
@@ -14,6 +15,7 @@ function disableAll() {
         el.classList.add("disabled")
     })
 }
+
 function enableAll() {
     const elements = document.querySelectorAll(".while-waiting")
     elements.forEach(function (el, index) {
@@ -21,6 +23,7 @@ function enableAll() {
         el.classList.remove("disabled")
     })
 }
+
 function debounce(fun, delay) {
     let timer
     return function (...args) {
@@ -31,9 +34,6 @@ function debounce(fun, delay) {
     }
 }
 
-const DateTime = luxon.DateTime
-let lxFechaHora
-let diffMs = 0
 const configFechaHora = {
     locale: "es",
     weekNumbers: true,
@@ -45,11 +45,15 @@ const configFechaHora = {
     // time_24hr: false
 }
 
+const DateTime = luxon.DateTime
+let lxFechaHora
+let diffMs = 0
+
 const app = angular.module("angularjsApp", ["ngRoute"])
 app.config(function ($routeProvider, $locationProvider) {
     $locationProvider.hashPrefix("")
 
-   $routeProvider
+    $routeProvider
     .when("/", {
         templateUrl: "/login",
         controller: "loginCtrl"
@@ -81,7 +85,7 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
     $rootScope.incompleteRequest = false
     $rootScope.completeRequest   = false
     $rootScope.login             = localStorage.getItem("login")
-    const defaultRouteAuth       = "#/productos"
+    const defaultRouteAuth       = "#/rentas"
     let timesChangesSuccessRoute = 0
 
 
@@ -226,17 +230,23 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
 
 
             // swipe
-            if (path.indexOf("productos") != -1) {
+            if (path.indexOf("rentas") != -1) {
                 $rootScope.leftView      = ""
-                $rootScope.rightView     = "Ventas"
+                $rootScope.rightView     = "clientes"
                 $rootScope.leftViewLink  = ""
-                $rootScope.rightViewLink = "#/ventas"
+                $rootScope.rightViewLink = "#/clientes"
+            }
+            else if (path.indexOf("clientes") != -1) {
+                $rootScope.leftView      = "rentas"
+                $rootScope.rightView     = "trajes"
+                $rootScope.leftViewLink  = "#/rentas"
+                $rootScope.rightViewLink = "#/trajes"
             }
             else if (path.indexOf("ventas") != -1) {
-                $rootScope.leftView      = "Productos"
-                $rootScope.rightView     = "Notificaciones"
-                $rootScope.leftViewLink  = "#/productos"
-                $rootScope.rightViewLink = "#/notificaciones"
+                $rootScope.leftView      = "clientes"
+                $rootScope.rightView     = ""
+                $rootScope.leftViewLink  = "#/clientes"
+                $rootScope.rightViewLink = ""
             }
             else {
                 $rootScope.leftView      = ""
@@ -466,24 +476,22 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
                         diffMs = lxFechaHoraServidor.toMillis() - lxLocal.toMillis()
                     })
 
-$.get("preferencias", {
-    token: localStorage.getItem("fbt")
-}, function (respuesta) {
-    if (typeof respuesta != "object") {
-        return
-    }
+                    $.get("preferencias", {
+                        token: localStorage.getItem("fbt")
+                    }, function (respuesta) {
+                        if (typeof respuesta != "object") {
+                            return
+                        }
 
-    console.log("✅ Respuesta recibida:", respuesta)
+                        console.log("✅ Respuesta recibida:", respuesta)
 
-    const login      = "1"
-    let preferencias = respuesta
+                        const login      = "1"
+                        let preferencias = respuesta
 
-    localStorage.setItem("login", login)
-    localStorage.setItem("preferencias", JSON.stringify(preferencias))
-    $rootScope.redireccionar(login, preferencias)
-})
-
-
+                        localStorage.setItem("login", login)
+                        localStorage.setItem("preferencias", JSON.stringify(preferencias))
+                        $rootScope.redireccionar(login, preferencias)
+                    })
 
 
                     // events
@@ -922,6 +930,3 @@ app.controller("apoyosCtrl", function ($scope, $http) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
-
-
-
