@@ -419,8 +419,8 @@ def buscarApoyos():
        a.monto,
        a.causa
         FROM apoyos a
-        JOIN mascotas m ON a.idMascota = m.idMascota
-        JOIN padrinos p ON a.idPadrino = p.idPadrino
+        INNER JOIN mascotas m ON a.idMascota = m.idMascota
+        INNER JOIN padrinos p ON a.idPadrino = p.idPadrino
         WHERE m.nombre LIKE %s
            OR p.nombre LIKE %s
            OR a.monto  LIKE %s
@@ -538,6 +538,7 @@ def eliminarApoyo():
 
     return make_response(jsonify({}))
     
+
 
 
 
