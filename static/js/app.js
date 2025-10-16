@@ -466,22 +466,31 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
                         diffMs = lxFechaHoraServidor.toMillis() - lxLocal.toMillis()
                     })
 
-                    $.get("preferencias", {
-                        token: localStorage.getItem("fbt")
-                    }, function (respuesta) {
-                        if (typeof respuesta != "object") {
-                            return
-                        }
+$.ajax({
+    url: "preferencias",
+    method: "GET",
+    xhrFields: {
+        withCredentials: true  // ✅ Envia la cookie de sesión al servidor
+    },
+    success: function (respuesta) {
+        if (typeof respuesta !== "object") {
+            return
+        }
 
-                        console.log("✅ Respuesta recibida:", respuesta)
+        console.log("✅ Respuesta recibida:", respuesta)
 
-                        const login      = "1"
-                        let preferencias = respuesta
+        const login = "1"
+        let preferencias = respuesta
 
-                        localStorage.setItem("login", login)
-                        localStorage.setItem("preferencias", JSON.stringify(preferencias))
-                        $rootScope.redireccionar(login, preferencias)
-                    })
+        localStorage.setItem("login", login)
+        localStorage.setItem("preferencias", JSON.stringify(preferencias))
+        $rootScope.redireccionar(login, preferencias)
+    },
+    error: function (err) {
+        console.error("❌ Error en /preferencias:", err)
+    }
+})
+
 
 
                     // events
@@ -920,4 +929,5 @@ app.controller("apoyosCtrl", function ($scope, $http) {
 document.addEventListener("DOMContentLoaded", function (event) {
     activeMenuOption(location.hash)
 })
+
 
