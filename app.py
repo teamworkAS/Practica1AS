@@ -75,8 +75,7 @@ def login(fun):
 
 @app.route("/")
 def landingPage():
-    if not con.is_connected():
-        con.reconnect()
+    con = get_connection()
     con.close()
     return render_template("landing-page.html")
 
@@ -150,9 +149,7 @@ def padrinos():
 @app.route("/tbodyPadrinos")
 @login
 def tbodyPadrinos():
-    if not con.is_connected():
-        con.reconnect()
-
+    con = get_connection()
     cursor = con.cursor(dictionary=True)
     sql    = """
     SELECT idPadrino,
@@ -166,14 +163,14 @@ def tbodyPadrinos():
     """
     cursor.execute(sql)
     registros = cursor.fetchall()
+    cursor.close()
+    con.close()
     return render_template("tbodyPadrinos.html", padrinos=registros)
 
 @app.route("/padrinos/buscar", methods=["GET"])
 @login
 def buscarPadrinos():
-    if not con.is_connected():
-        con.reconnect()
-
+    con = get_connection()
     args     = request.args
     busqueda = args["busqueda"]
     busqueda = f"%{busqueda}%"
@@ -201,6 +198,7 @@ def buscarPadrinos():
         print(f"Ocurrió un error de programación en MySQL: {error}")
         registros = []
     finally:
+        cursor.close()
         con.close()
 
     return make_response(jsonify(registros))
@@ -208,9 +206,7 @@ def buscarPadrinos():
 @app.route("/padrino", methods=["POST"])
 @login
 def guardarPadrinos():
-    if not con.is_connected():
-        con.reconnect()
-
+    con = get_connection()
     idPadrino          = request.form["idPadrino"]
     nombrePadrino      = request.form["nombrePadrino"]
     sexo               = request.form["sexo"]
@@ -238,6 +234,7 @@ def guardarPadrinos():
     
     cursor.execute(sql, val)
     con.commit()
+    cursor.close()
     con.close()
     pusherPadrinos()
     return make_response(jsonify({}))
@@ -245,8 +242,7 @@ def guardarPadrinos():
 @app.route("/padrino/<int:idPadrino>")
 @login
 def editarPadrino(idPadrino):
-    if not con.is_connected():
-        con.reconnect()
+    con = get_connection()
     cursor = con.cursor(dictionary=True)
     sql    = """
     SELECT idPadrino, nombrePadrino, sexo, telefono, correoElectronico
@@ -256,19 +252,20 @@ def editarPadrino(idPadrino):
     val    = (idPadrino,)
     cursor.execute(sql, val)
     registros = cursor.fetchall()
+    cursor.close()
     con.close()
     return make_response(jsonify(registros))
 
 @app.route("/padrino/eliminar", methods=["POST"])
 def eliminarPadrino():
-    if not con.is_connected():
-        con.reconnect()
+    con = get_connection()
     idPadrino = request.form["idPadrino"]
     cursor = con.cursor(dictionary=True)
     sql    = "DELETE FROM padrinos WHERE idPadrino = %s"
     val    = (idPadrino,)
     cursor.execute(sql, val)
     con.commit()
+    cursor.close()
     con.close()
     pusherPadrinos()
     return make_response(jsonify({}))
@@ -283,8 +280,7 @@ def cargo():
 
 @app.route("/tbodyCargo")
 def tbodyCargo():
-    if not con.is_connected():
-        con.reconnect()
+    con = get_connection()
     cursor = con.cursor(dictionary=True)
     sql    = """
     SELECT idCargo, descripcion, monto, fecha, idMascotas
@@ -294,13 +290,13 @@ def tbodyCargo():
     """
     cursor.execute(sql)
     registros = cursor.fetchall()
+    cursor.close()
+    con.close()
     return render_template("tbodyCargo.html", cargo=registros)
 
 @app.route("/cargo", methods=["POST"])
 def guardarCargo():
-    if not con.is_connected():
-        con.reconnect()
-
+    con = get_connection()
     idCargo = request.form.get("idCargo")
     descripcion = request.form.get("descripcion")
     monto = request.form.get("monto")
@@ -310,42 +306,40 @@ def guardarCargo():
     cursor = con.cursor()
 
     try:
-        if not idCargo:  # Insertar nuevo
+        if not idCargo:
             sql = "INSERT INTO cargo (descripcion, monto, fecha, idMascotas) VALUES (%s, %s, %s, %s)"
             val = (descripcion, monto, fecha, idMascotas)
-        else:  # Editar existente
+        else:
             sql = "UPDATE cargo SET descripcion=%s, monto=%s, fecha=%s, idMascotas=%s WHERE idCargo=%s"
             val = (descripcion, monto, fecha, idMascotas, idCargo)
 
         cursor.execute(sql, val)
         con.commit()
         cursor.close()
+        con.close()
         return make_response(jsonify({"status": "ok"}))
     except Exception as e:
         con.rollback()
         print("Error al guardar cargo:", e)
+        con.close()
         return make_response(jsonify({"status": "error", "message": str(e)}), 500)
-
-
 
 @app.route("/cargo/eliminar", methods=["POST"])
 def eliminarCargo():
-    if not con.is_connected():
-        con.reconnect()
+    con = get_connection()
     idCargo = request.form["idCargo"]
     cursor = con.cursor()
     sql    = "DELETE FROM cargo WHERE idCargo = %s"
     val    = (idCargo,)
     cursor.execute(sql, val)
     con.commit()
+    cursor.close()
     con.close()
     return make_response(jsonify({"succes": True}))
 
 @app.route("/cargo/<int:idCargo>")
 def obtenerCargo(idCargo):
-    if not con.is_connected():
-        con.reconnect()
-
+    con = get_connection()
     cursor = con.cursor(dictionary=True)
     sql = """
     SELECT idCargo, descripcion, monto, fecha, idMascotas
@@ -354,6 +348,7 @@ def obtenerCargo(idCargo):
     """
     cursor.execute(sql, (idCargo,))
     registros = cursor.fetchall()
+    cursor.close()
     con.close()
     return make_response(jsonify(registros))
 
@@ -368,45 +363,28 @@ def apoyos():
 @app.route("/tbodyApoyo")
 @login
 def tbodyApoyo():
-    if not con.is_connected():
-        con.reconnect()
-
+    con = get_connection()
     cursor = con.cursor(dictionary=True)
     sql    = """
     SELECT idApoyo,
            idMascota,
            idPadrino,
            monto,
-           causa	
-
+           causa
     FROM apoyos
-
     ORDER BY idApoyo DESC
-
     LIMIT 10 OFFSET 0
     """
-
     cursor.execute(sql)
     registros = cursor.fetchall()
-
-    # Si manejas fechas y horas
-    """
-    for registro in registros:
-        fecha_hora = registro["Fecha_Hora"]
-
-        registro["Fecha_Hora"] = fecha_hora.strftime("%Y-%m-%d %H:%M:%S")
-        registro["Fecha"]      = fecha_hora.strftime("%d/%m/%Y")
-        registro["Hora"]       = fecha_hora.strftime("%H:%M:%S")
-    """
-
+    cursor.close()
+    con.close()
     return render_template("tbodyApoyo.html", apoyos=registros)
 
 @app.route("/productos/ingredientes/<int:idApoyo>")
 @login
 def productosIngredientes(id):
-    if not con.is_connected():
-        con.reconnect()
-
+    con = get_connection()
     cursor = con.cursor(dictionary=True)
     sql    = """
     SELECT productos.Nombre_Producto, ingredientes.*, productos_ingredientes.Cantidad FROM productos_ingredientes
@@ -415,10 +393,10 @@ def productosIngredientes(id):
     WHERE productos_ingredientes.Id_Producto = %s
     ORDER BY productos.Nombre_Producto
     """
-
     cursor.execute(sql, (id, ))
     registros = cursor.fetchall()
-
+    cursor.close()
+    con.close()
     return render_template("modal.html", productosIngredientes=registros)
 
 @app.route("/mascotas")
@@ -427,36 +405,30 @@ def mascotas():
 
 @app.route("/api/mascotas")
 def listarMascotas():
-    if not con.is_connected():
-        con.reconnect()
-
+    con = get_connection()
     cursor = con.cursor(dictionary=True)
     sql = "SELECT idMascota, nombre FROM mascotas ORDER BY nombre"
     cursor.execute(sql)
     registros = cursor.fetchall()
+    cursor.close()
     con.close()
-
     return make_response(jsonify(registros))
 
 @app.route("/api/padrinos")
 def listarPadrinos():
-    if not con.is_connected():
-        con.reconnect()
-
+    con = get_connection()
     cursor = con.cursor(dictionary=True)
     sql = "SELECT idPadrino, nombrePadrino FROM padrinos ORDER BY nombrePadrino"
     cursor.execute(sql)
     registros = cursor.fetchall()
+    cursor.close()
     con.close()
-
     return make_response(jsonify(registros))
 
 @app.route("/apoyos/buscar", methods=["GET"])
 @login
 def buscarApoyos():
-    if not con.is_connected():
-        con.reconnect()
-
+    con = get_connection()
     args     = request.args
     busqueda = args["busqueda"]
     busqueda = f"%{busqueda}%"
@@ -465,135 +437,98 @@ def buscarApoyos():
     sql    = """
     SELECT a.idApoyo,
        m.nombre AS mascota,
-       p.nombre AS padrino,
+       p.nombrePadrino AS padrino,
        a.monto,
        a.causa
         FROM apoyos a
         JOIN mascotas m ON a.idMascota = m.idMascota
         JOIN padrinos p ON a.idPadrino = p.idPadrino
         WHERE m.nombre LIKE %s
-           OR p.nombre LIKE %s
+           OR p.nombrePadrino LIKE %s
            OR a.monto  LIKE %s
            OR a.causa  LIKE %s
         ORDER BY a.idApoyo DESC
         LIMIT 10 OFFSET 0
-
     """
     val    = (busqueda, busqueda, busqueda, busqueda)
 
     try:
         cursor.execute(sql, val)
         registros = cursor.fetchall()
-
-        # Si manejas fechas y horas
-        """
-        for registro in registros:
-            fecha_hora = registro["Fecha_Hora"]
-
-            registro["Fecha_Hora"] = fecha_hora.strftime("%Y-%m-%d %H:%M:%S")
-            registro["Fecha"]      = fecha_hora.strftime("%d/%m/%Y")
-            registro["Hora"]       = fecha_hora.strftime("%H:%M:%S")
-        """
-
     except mysql.connector.errors.ProgrammingError as error:
         print(f"Ocurrió un error de programación en MySQL: {error}")
         registros = []
-
     finally:
+        cursor.close()
         con.close()
 
     return make_response(jsonify(registros))
 
 @app.route("/apoyo", methods=["POST"])
-# Usar cuando solo se quiera usar CORS en rutas específicas
-# @cross_origin()
 @login
 def guardarApoyo():
-    if not con.is_connected():
-        con.reconnect()
-
+    con = get_connection()
     idApoyo    = request.form["idApoyo"]
     idMascota  = request.form["mascota"]
     padrino    = request.form["padrino"]
     monto      = request.form["monto"]
     causa      = request.form["causa"]
-    # fechahora   = datetime.datetime.now(pytz.timezone("America/Matamoros"))
     
     cursor = con.cursor()
 
     if idApoyo:
         sql = """
         UPDATE apoyos
-
         SET idMascota = %s,
-        idPadrino = %s,
-        monto     = %s,
-        causa     = %s
-
+            idPadrino = %s,
+            monto     = %s,
+            causa     = %s
         WHERE idApoyo = %s
         """
         val = (idMascota, padrino, monto, causa, idApoyo)
     else:
         sql = """
         INSERT INTO apoyos (idMascota, idPadrino, monto, causa)
-                    VALUES    (%s,          %s,      %s,    %s)
+        VALUES (%s, %s, %s, %s)
         """
-        val =                 (idMascota, padrino, monto, causa)
+        val = (idMascota, padrino, monto, causa)
     
     cursor.execute(sql, val)
     con.commit()
+    cursor.close()
     con.close()
-
     pusherApoyos()
-    
     return make_response(jsonify({}))
     
 @app.route("/apoyo/<int:idApoyo>")
 @login
 def editarApoyos(idApoyo):
-    if not con.is_connected():
-        con.reconnect()
-
+    con = get_connection()
     cursor = con.cursor(dictionary=True)
     sql    = """
     SELECT idApoyo, idMascota, idPadrino, monto, causa
-
     FROM apoyos
-
     WHERE idApoyo = %s
     """
     val    = (idApoyo,)
-
     cursor.execute(sql, val)
     registros = cursor.fetchall()
+    cursor.close()
     con.close()
-
     return make_response(jsonify(registros))
 
 @app.route("/apoyo/eliminar", methods=["POST"])
 def eliminarApoyo():
-    if not con.is_connected():
-        con.reconnect()
-
+    con = get_connection()
     idApoyo = request.form["idApoyo"]
-
     cursor = con.cursor(dictionary=True)
     sql    = """
     DELETE FROM apoyos
     WHERE idApoyo = %s
     """
     val    = (idApoyo,)
-
     cursor.execute(sql, val)
     con.commit()
+    cursor.close()
     con.close()
-
     return make_response(jsonify({}))
-    
-
-
-
-
-
-
-
