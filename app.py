@@ -7,7 +7,6 @@ from functools import wraps
 from routes.mascotas_routes import mascotas_bp
 
 def get_connection():
-    """Crea una nueva conexión a MySQL cada vez que se llama"""
     return mysql.connector.connect(
         host="185.232.14.52",
         database="u760464709_23005116_bd",
@@ -62,13 +61,16 @@ def pusherApoyos():
     pusher_client.trigger("for-nature-533", "eventoApoyos", {"message": "Hola Mundo!"})
     return make_response(jsonify({}))
 
-def login(view_func):
-    @wraps(view_func)
-    def wrapped_view(**kwargs):
-        if 'usuario' not in session:
-            return redirect(url_for('login'))
-        return view_func(**kwargs)
-    return wrapped_view
+def login(fun):
+    @wraps(fun)
+    def decorador(*args, **kwargs):
+        if not session.get("login"):
+            return jsonify({
+                "estado": "error",
+                "respuesta": "No has iniciado sesión"
+            }), 401
+        return fun(*args, **kwargs)
+    return decorador
 
 @app.route("/")
 def landingPage():
@@ -529,4 +531,3 @@ def eliminarApoyo():
     cursor.close()
     con.close()
     return make_response(jsonify({}))
-
