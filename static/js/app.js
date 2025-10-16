@@ -658,17 +658,6 @@ app.controller("padrinosCtrl", function ($scope, $http) {
         buscarPadrinos()
     })
 
-    $(document).on("submit", "#frmPadrino", function (event) {
-        event.preventDefault()
-
-        $.post("/padrino", {
-            idPadrino: "",
-            nombrePadrino:     $("#txtNombrePadrino").val(),
-            sexo:              $("#txtSexo").val(),
-            telefono:          $("#txtTelefono").val(),
-            correoElectronico: $("#txtEmail").val(),
-        })
-    })
 
     $(document).off("click", ".btn-eliminar").on("click", ".btn-eliminar", function () {
         const id = $(this).data("idpadrino")
@@ -941,6 +930,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash)
 })
+
 
 
 
